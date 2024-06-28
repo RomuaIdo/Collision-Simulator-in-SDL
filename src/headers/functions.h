@@ -14,5 +14,7 @@ void update(void);
 void render(void);
 // FUNCOES DE DESTRUIÇÃO
 void destroy_window(void);
-
+// FUNCAO PARA DESENHAR UM CIRCULO
+int SDL_RenderFillCircle(SDL_Renderer * renderer, int x, int y, int radius);
+int SDL_RenderDrawCircle(SDL_Renderer * renderer, int x, int y, int radius);
 #endif

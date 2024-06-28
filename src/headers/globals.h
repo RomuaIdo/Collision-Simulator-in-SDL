@@ -3,11 +3,11 @@
 #define GLOBALS_H
 #include <SDL2/SDL.h>
 //Constantes
-#define SCREEN_WIDTH 1200 //Largura da tela
-#define SCREEN_HEIGHT 800 //Altura da tela
+#define SCREEN_WIDTH 800 //Largura da tela
+#define SCREEN_HEIGHT 600 //Altura da tela
 #define FALSE 0 //Falso
 #define TRUE 1 //Verdadeiro
-#define FPS 120 //Frames por segundo
+#define FPS 60 //Frames por segundo
 #define FRAME_TARGET_TIME (1000 / FPS) //Tempo de um frame
 
 // Variáveis Globais

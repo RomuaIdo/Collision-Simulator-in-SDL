@@ -5,7 +5,8 @@
 #include "./headers/structs.h"
 int collisionx = FALSE;
 int collisiony = FALSE;
-void process_input(void){
+void process_input(void)
+{
     SDL_Event event;
     SDL_PollEvent(&event);
     switch (event.type)
@@ -13,7 +14,7 @@ void process_input(void){
     case SDL_QUIT:
         running = FALSE;
         break;
-    
+
     case SDL_KEYDOWN:
         switch (event.key.keysym.sym)
         {
@@ -25,26 +26,39 @@ void process_input(void){
     }
 }
 
-void update(void){
+void update(void)
+{
 
-    while(!SDL_TICKS_PASSED(SDL_GetTicks(), last_frame_time + FRAME_TARGET_TIME));
-    
     float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
 
     last_frame_time = SDL_GetTicks();
+    /* Uncomment this block of code to limit the frame rate
+    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
 
-    
-
-    if((rect.x >= SCREEN_WIDTH - rect.width || rect.x <= 0) && rect.collisionx == FALSE){
-        rect.vx = -rect.vx*CR;
-        rect.collisionx = TRUE;
+    if(time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME){
+        SDL_Delay(time_to_wait);
     }
-    else{
+    */
+    if ((rect.x >= SCREEN_WIDTH - rect.radius || rect.x - rect.radius <= 0))
+    {
+        if (rect.collisionx == FALSE)
+        {
+            rect.collisionx = TRUE;
+            rect.vx = -rect.vx * CR;
+        }
+    }
+    else
+    {
         rect.collisionx = FALSE;
     }
-    if((rect.y >= SCREEN_HEIGHT - rect.height || rect.y <= 0) && collisiony == FALSE){
-        rect.vy = -rect.vy*CR;
-        rect.collisiony = TRUE;
+
+    if ((rect.y >= SCREEN_HEIGHT - rect.radius || rect.y - rect.radius <= 0))
+    {
+        if (rect.collisiony == FALSE)
+        {
+            rect.collisiony = TRUE;
+            rect.vy = -rect.vy * CR;
+        }
     }
     else
     {

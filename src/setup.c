@@ -47,12 +47,13 @@ void setup(){
     last_frame_time = 0;
     rect.vx = 100;
     rect.vy = 100;
-    rect.x = 20;
-    rect.y = 20;
+    rect.x = 30;
+    rect.y = 30;
     rect.width = 50;
     rect.height = 50;
     rect.collisionx = FALSE;
     rect.collisiony = FALSE;
+    rect.radius = 25;
 }
 void destroy_window(void){
     SDL_DestroyRenderer(renderer);
