@@ -2,6 +2,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 #include <SDL2/SDL.h>
+#include "./structs.h"
 //Constantes
 #define SCREEN_WIDTH 800 //Largura da tela
 #define SCREEN_HEIGHT 600 //Altura da tela
@@ -18,5 +19,13 @@ extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern int running;
 extern float CR;
+extern int n_balls;
+
+
+//Array de ponteiros bola
+extern Ball **balls;
+
+extern Ball ball;
+
 
 #endif

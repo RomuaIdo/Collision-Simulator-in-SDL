@@ -6,10 +6,9 @@ typedef struct{ //Strcut do circulo
     double angle; // Angulo da velocidade
     float x, y;
     float vx, vy;
-    int collisionx, collisiony;
+    int collision_wallx, collision_wally;
     float radius;
+    unsigned char color_r, color_g, color_b, color_a;
 } Ball;
-
-extern Ball ball;
 
 #endif

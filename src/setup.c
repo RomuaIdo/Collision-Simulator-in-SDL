@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <math.h>
+#include <time.h>
 #include "./headers/globals.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
@@ -14,6 +15,8 @@ int running = FALSE;
 
 float CR = 1.01;
 Ball ball;
+Ball **balls;
+int n_balls = 3;
 
 
 int initialize_window(void){
@@ -45,16 +48,25 @@ int initialize_window(void){
 }
 
 void setup(){
+    srand(time(NULL));
+    int i;
+    printf("Setup done\n");
+    balls = (Ball**)malloc(n_balls*sizeof(Ball*));
+    for(i = 0; i < n_balls; i++){
+        balls[i] = (Ball*)malloc(sizeof(Ball)); // Aloca memória para cada Ball
+        balls[i]->V = 100;
+        balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;
+        balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
+        balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
+        balls[i]->x = 55;
+        balls[i]->y = 55;
+        balls[i]->collision_wallx = FALSE;
+        balls[i]->collision_wally = FALSE;
+        balls[i]->radius = 25;
+    }
+    
+
     last_frame_time = 0;
-    ball.V = 100;
-    ball.angle = 3.0*M_PI/4.0;
-    ball.vx = ball.V * cos(ball.angle);
-    ball.vy = ball.V * sin(ball.angle);
-    ball.x = 55;
-    ball.y = 55;
-    ball.collisionx = FALSE;
-    ball.collisiony = FALSE;
-    ball.radius = 25;
 }
 void destroy_window(void){
     SDL_DestroyRenderer(renderer);
