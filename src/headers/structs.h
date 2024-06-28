@@ -4,11 +4,10 @@
 typedef struct{ //Strcut do retângulo
     float x, y;
     float vx, vy;
-    float width, height;
     int collisionx, collisiony;
     float radius;
-} Rectangle;
+} Ball;
 
-extern Rectangle rect;
+extern Ball ball;
 
 #endif

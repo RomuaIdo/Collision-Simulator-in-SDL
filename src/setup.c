@@ -12,7 +12,7 @@ SDL_Renderer* renderer = NULL;
 int running = FALSE;
 
 float CR = 1.01;
-Rectangle rect;
+Ball ball;
 
 
 int initialize_window(void){
@@ -45,15 +45,13 @@ int initialize_window(void){
 
 void setup(){
     last_frame_time = 0;
-    rect.vx = 100;
-    rect.vy = 100;
-    rect.x = 30;
-    rect.y = 30;
-    rect.width = 50;
-    rect.height = 50;
-    rect.collisionx = FALSE;
-    rect.collisiony = FALSE;
-    rect.radius = 25;
+    ball.vx = 100;
+    ball.vy = 100;
+    ball.x = 30;
+    ball.y = 30;
+    ball.collisionx = FALSE;
+    ball.collisiony = FALSE;
+    ball.radius = 25;
 }
 void destroy_window(void){
     SDL_DestroyRenderer(renderer);

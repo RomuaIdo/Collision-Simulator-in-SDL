@@ -39,32 +39,28 @@ void update(void)
         SDL_Delay(time_to_wait);
     }
     */
-    if ((rect.x >= SCREEN_WIDTH - rect.radius || rect.x - rect.radius <= 0))
+    if (ball.collisionx == FALSE && (ball.x >= SCREEN_WIDTH - ball.radius || ball.x - ball.radius <= 0))
     {
-        if (rect.collisionx == FALSE)
-        {
-            rect.collisionx = TRUE;
-            rect.vx = -rect.vx * CR;
-        }
+        ball.collisionx = TRUE;
+        ball.vx = -ball.vx * CR;
     }
     else
     {
-        rect.collisionx = FALSE;
+        ball.collisionx = FALSE;
     }
 
-    if ((rect.y >= SCREEN_HEIGHT - rect.radius || rect.y - rect.radius <= 0))
+    if (ball.collisiony == FALSE && (ball.y >= SCREEN_HEIGHT - ball.radius || ball.y - ball.radius <= 0))
     {
-        if (rect.collisiony == FALSE)
-        {
-            rect.collisiony = TRUE;
-            rect.vy = -rect.vy * CR;
-        }
+        ball.collisiony = TRUE;
+        ball.vy = -ball.vy * CR;
     }
     else
     {
-        rect.collisiony = FALSE;
+        ball.collisiony = FALSE;
     }
 
-    rect.x += rect.vx * delta_time;
-    rect.y += rect.vy * delta_time;
+    ball.x += ball.vx * delta_time;
+    ball.y += ball.vy * delta_time;
+
+    printf("vx: %f vy: %f\n", ball.vx, ball.vy);
 }

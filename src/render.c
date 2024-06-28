@@ -99,7 +99,7 @@ void render(void)
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderFillCircle(renderer, rect.x, rect.y, rect.radius);
+    SDL_RenderFillCircle(renderer, ball.x, ball.y, ball.radius);
     
 
     SDL_RenderPresent(renderer);
