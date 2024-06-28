@@ -26,24 +26,31 @@ void process_input(void){
 }
 
 void update(void){
-    if((rect.x >= SCREEN_WIDTH - rect.width || rect.x <= 0) && collisionx == FALSE){
-        xi = -xi*CR;
-        collisionx = TRUE;
+
+    while(!SDL_TICKS_PASSED(SDL_GetTicks(), last_frame_time + FRAME_TARGET_TIME));
+    
+    float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
+
+    last_frame_time = SDL_GetTicks();
+
+    
+
+    if((rect.x >= SCREEN_WIDTH - rect.width || rect.x <= 0) && rect.collisionx == FALSE){
+        rect.vx = -rect.vx*CR;
+        rect.collisionx = TRUE;
     }
     else{
-        collisionx = FALSE;
+        rect.collisionx = FALSE;
     }
     if((rect.y >= SCREEN_HEIGHT - rect.height || rect.y <= 0) && collisiony == FALSE){
-        yi = -yi*CR;
-        collisiony = TRUE;
+        rect.vy = -rect.vy*CR;
+        rect.collisiony = TRUE;
     }
     else
     {
-        collisiony = FALSE;
+        rect.collisiony = FALSE;
     }
 
-    rect.x += xi;
-    rect.y += yi;
-
-  
+    rect.x += rect.vx * delta_time;
+    rect.y += rect.vy * delta_time;
 }

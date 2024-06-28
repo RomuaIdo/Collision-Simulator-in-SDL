@@ -10,10 +10,10 @@ int last_frame_time; //Tempo do último frame
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 int running = FALSE;
-float xi = 1;
-float yi = 1;
+
 float CR = 1.01;
 Rectangle rect;
+
 
 int initialize_window(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
@@ -44,10 +44,15 @@ int initialize_window(void){
 }
 
 void setup(){
+    last_frame_time = 0;
+    rect.vx = 100;
+    rect.vy = 100;
     rect.x = 20;
     rect.y = 20;
     rect.width = 50;
     rect.height = 50;
+    rect.collisionx = FALSE;
+    rect.collisiony = FALSE;
 }
 void destroy_window(void){
     SDL_DestroyRenderer(renderer);

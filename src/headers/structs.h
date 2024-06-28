@@ -3,7 +3,9 @@
 
 typedef struct{ //Strcut do retângulo
     float x, y;
+    float vx, vy;
     float width, height;
+    int collisionx, collisiony;
 } Rectangle;
 
 extern Rectangle rect;
