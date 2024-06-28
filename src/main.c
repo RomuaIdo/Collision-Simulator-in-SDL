@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "./headers/globals.h"
 #include "./headers/functions.h"
@@ -14,7 +15,6 @@ int main(){
         process_input();
         update();
         render();
-
     }
     
     destroy_window();

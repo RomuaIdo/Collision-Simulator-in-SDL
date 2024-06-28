@@ -32,17 +32,20 @@ void update(void)
     float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
 
     last_frame_time = SDL_GetTicks();
-    /* Uncomment this block of code to limit the frame rate
+    // Uncomment this block of code to limit the frame rate
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
 
     if(time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME){
         SDL_Delay(time_to_wait);
     }
-    */
+    
     if (ball.collisionx == FALSE && (ball.x >= SCREEN_WIDTH - ball.radius || ball.x - ball.radius <= 0))
     {
+        ball.x = fmax(ball.radius, fmin(ball.x, SCREEN_WIDTH - ball.radius));
         ball.collisionx = TRUE;
-        ball.vx = -ball.vx * CR;
+        ball.angle = M_PI-ball.angle;
+        ball.vx = -(ball.V*cos(ball.angle)) * CR;
+        ball.V = sqrt(pow(ball.vx, 2) + pow(ball.vy, 2));
     }
     else
     {
@@ -51,16 +54,19 @@ void update(void)
 
     if (ball.collisiony == FALSE && (ball.y >= SCREEN_HEIGHT - ball.radius || ball.y - ball.radius <= 0))
     {
+        ball.y = fmax(ball.radius, fmin(ball.y, SCREEN_HEIGHT - ball.radius));
         ball.collisiony = TRUE;
-        ball.vy = -ball.vy * CR;
+        ball.angle = 2 * M_PI - ball.angle;
+        ball.vy = -(ball.V*sin(ball.angle)) * CR;
+        ball.V = sqrt(pow(ball.vx, 2) + pow(ball.vy, 2));
     }
     else
     {
         ball.collisiony = FALSE;
     }
 
+    printf("vx: %f, vy: %f\n", ball.vx, ball.vy);
     ball.x += ball.vx * delta_time;
     ball.y += ball.vy * delta_time;
 
-    printf("vx: %f vy: %f\n", ball.vx, ball.vy);
 }

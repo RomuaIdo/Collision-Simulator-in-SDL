@@ -9,7 +9,9 @@
 #define TRUE 1 //Verdadeiro
 #define FPS 60 //Frames por segundo
 #define FRAME_TARGET_TIME (1000 / FPS) //Tempo de um frame
-
+#ifndef M_PI
+# define M_PI		3.14159265358979323846    /* pi */
+#endif
 // Variáveis Globais
 extern int last_frame_time; // Tempo do último frame
 extern SDL_Window* window;

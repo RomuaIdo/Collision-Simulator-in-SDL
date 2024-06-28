@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <math.h>
 #include "./headers/globals.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
@@ -45,10 +46,12 @@ int initialize_window(void){
 
 void setup(){
     last_frame_time = 0;
-    ball.vx = 100;
-    ball.vy = 100;
-    ball.x = 30;
-    ball.y = 30;
+    ball.V = 100;
+    ball.angle = 3.0*M_PI/4.0;
+    ball.vx = ball.V * cos(ball.angle);
+    ball.vy = ball.V * sin(ball.angle);
+    ball.x = 55;
+    ball.y = 55;
     ball.collisionx = FALSE;
     ball.collisiony = FALSE;
     ball.radius = 25;
