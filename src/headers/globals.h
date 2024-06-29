@@ -22,10 +22,10 @@ extern float CR;
 extern int n_balls;
 
 
-//Array de ponteiros bola
+//Array de ponteiros para as particulas
 extern Ball **balls;
 
-extern Ball ball;
-
+//Matriz de ponteiros de colisao entre particulas
+extern Collision ***collisions;
 
 #endif

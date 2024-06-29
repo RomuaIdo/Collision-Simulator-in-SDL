@@ -7,8 +7,19 @@ typedef struct{ //Strcut do circulo
     float x, y;
     float vx, vy;
     int collision_wallx, collision_wally;
-    float radius;
+    int radius;
+    float mass;
+    float impulse;
     unsigned char color_r, color_g, color_b, color_a;
 } Ball;
+
+typedef struct{
+    int collision;
+    double angle;
+    float nx;
+    float ny;
+    float vrel_n;
+    float impulse_n;
+}Collision;
 
 #endif

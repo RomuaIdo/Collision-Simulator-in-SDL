@@ -99,9 +99,8 @@ void render(void)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderFillCircle(renderer, ball.x, ball.y, ball.radius);
     for(i = 0; i < n_balls; i++){
+        SDL_SetRenderDrawColor(renderer, balls[i]->color_r, balls[i]->color_g, balls[i]->color_b, balls[i]->color_a);
         SDL_RenderFillCircle(renderer, balls[i]->x, balls[i]->y, balls[i]->radius);
     }
 
