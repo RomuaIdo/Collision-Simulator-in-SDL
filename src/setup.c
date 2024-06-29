@@ -84,8 +84,20 @@ void setup(){
     last_frame_time = 0;
 }
 void destroy_window(void){
+    int i, j;
+    // Free colisions
+    if (collisions != NULL) {
+        for (i = 0; i < n_balls; i++) {
+            for (j = 0; j < n_balls; j++) {
+                free(collisions[i][j]); // Libera cada Collision individualmente
+            }
+            free(collisions[i]); // Depois libera o array de ponteiros
+        }
+        free(collisions); // Depois libera o array de ponteiros
+    }
+
     if (balls != NULL) {
-        for (int i = 0; i < n_balls; i++) {
+        for (i = 0; i < n_balls; i++) {
             free(balls[i]); // Libera cada Ball individualmente
         }
         free(balls); // Depois libera o array de ponteiros

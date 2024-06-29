@@ -20,6 +20,8 @@ typedef struct{
     float ny;
     float vrel_n;
     float impulse_n;
+    float vcm_x;
+    float vcm_y;
 }Collision;
 
 #endif

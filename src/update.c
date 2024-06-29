@@ -50,6 +50,11 @@ void update(void)
             if (distanceij <= balls[i]->radius + balls[j]->radius)
             {
                 collisions[i][j]->collision = TRUE;
+                collisions[i][j]->angle = atan2(balls[j]->y - balls[i]->y, balls[j]->x - balls[i]->x);
+                collisions[i][j]->nx = cos(collisions[i][j]->angle);
+                collisions[i][j]->ny = sin(collisions[i][j]->angle);
+                collisions[i][j]->vcm_x = (balls[i]->mass*balls[i]->vx + balls[j]->mass*balls[j]->vx) / (balls[i]->mass + balls[j]->mass);
+                collisions[i][j]->vcm_y = (balls[i]->mass*balls[i]->vy + balls[j]->mass*balls[j]->vy) / (balls[i]->mass + balls[j]->mass);
             }
             else
             {
@@ -58,11 +63,25 @@ void update(void)
 
             if (collisions[i][j]->collision == TRUE)
             {
-                collisions[i][j]->angle = atan2(balls[j]->y - balls[i]->y, balls[j]->x - balls[i]->x);
+                if(CR == 0){
+                    // Colisão completamente inelástica
+                    balls[i]->vx = balls[j]->vx = collisions[i][j]->vcm_x;
+                    balls[i]->vy = balls[j]->vy = collisions[i][j]->vcm_y;
 
-                collisions[i][j]->nx = cos(collisions[i][j]->angle);
-                collisions[i][j]->ny = sin(collisions[i][j]->angle);
+                    balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
+                    balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
 
+                    balls[i]->angle = atan2(balls[i]->vy, balls[i]->vx);
+                    balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
+
+                    // Corrigir a sobreposição das bolas
+                    float overlap = (balls[i]->radius + balls[j]->radius) - distanceij;
+                    balls[i]->x -= overlap / 2 * collisions[i][j]->nx;
+                    balls[i]->y -= overlap / 2 * collisions[i][j]->ny;
+                    balls[j]->x += overlap / 2 * collisions[i][j]->nx;
+                    balls[j]->y += overlap / 2 * collisions[i][j]->ny;
+                }
+                else{
                 collisions[i][j]->vrel_n = (balls[j]->vx - balls[i]->vx) * collisions[i][j]->nx + (balls[j]->vy - balls[i]->vy) * collisions[i][j]->ny;
 
                 collisions[i][j]->impulse_n = (-(1 + CR) * collisions[i][j]->vrel_n) / (1 / balls[i]->mass + 1 / balls[j]->mass);
@@ -76,6 +95,13 @@ void update(void)
                 balls[j]->vy += collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[j]->mass;
                 balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
                 balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
+
+                float overlap = (balls[i]->radius + balls[j]->radius) - distanceij;
+                balls[i]->x -= overlap / 2 * collisions[i][j]->nx;
+                balls[i]->y -= overlap / 2 * collisions[i][j]->ny;
+                balls[j]->x += overlap / 2 * collisions[i][j]->nx;
+                balls[j]->y += overlap / 2 * collisions[i][j]->ny;
+                }
             }
         }
     }
@@ -89,6 +115,11 @@ void update(void)
             balls[i]->angle = M_PI - balls[i]->angle;
             balls[i]->vx = -(balls[i]->V * cos(balls[i]->angle)) * CR;
             balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
+            if (CR == 0)
+            {
+                balls[i]->vx = 0;
+                balls[i]->vy = 0;
+            }
         }
         else
         {
@@ -102,6 +133,11 @@ void update(void)
             balls[i]->angle = 2 * M_PI - balls[i]->angle;
             balls[i]->vy = -(balls[i]->V * sin(balls[i]->angle)) * CR;
             balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
+            if (CR == 0)
+            {
+                balls[i]->vy = 0;
+                balls[i]->vx = 0;
+            }
         }
         else
         {
