@@ -13,7 +13,7 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 int running = FALSE;
 
-float CR = 0;
+float CR = 0.0;
 Ball ball;
 Ball **balls;
 int n_balls = 4;

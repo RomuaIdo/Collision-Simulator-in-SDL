@@ -22,6 +22,8 @@ typedef struct{
     float impulse_n;
     float vcm_x;
     float vcm_y;
+    float overlap;
+    float distance;
 }Collision;
 
 #endif
