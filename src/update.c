@@ -5,6 +5,34 @@
 #include "./headers/structs.h"
 int collision_wallx = FALSE;
 int collision_wally = FALSE;
+
+void process_initial_screen_input(void)
+{
+    SDL_Event event;
+    SDL_PollEvent(&event);
+    switch (event.type)
+    {
+    case SDL_QUIT:
+        running = FALSE;
+        break;
+
+    case SDL_MOUSEBUTTONDOWN:
+        if (event.button.button == SDL_BUTTON_LEFT) {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if (sqrt(pow(x - start_button.x, 2) + pow(y - start_button.y, 2)) <= start_button.radius) {
+                state = PROCESSING;
+            }
+        }
+        break;
+    }
+}
+
+
+
+
+
+
 void process_input(void)
 {
     SDL_Event event;

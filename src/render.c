@@ -93,6 +93,19 @@ int SDL_RenderFillCircle(SDL_Renderer * renderer, int x, int y, int radius)
     return status;
 }
 
+void render_initial_screen(void)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    // Renderiza o botão de início
+    SDL_SetRenderDrawColor(renderer, start_button.r, start_button.g, start_button.b, start_button.a);
+    SDL_RenderFillCircle(renderer, start_button.x, start_button.y, start_button.radius);
+
+    SDL_RenderPresent(renderer);
+}
+
+
 void render(void)
 {
     int i;

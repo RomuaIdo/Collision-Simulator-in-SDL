@@ -13,7 +13,10 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 int running = FALSE;
 
-float CR = 0.0;
+State state = INITIAL_SCREEN;
+Circle_Button start_button;
+
+float CR = 1.0;
 Ball ball;
 Ball **balls;
 int n_balls = 4;
@@ -47,6 +50,17 @@ int initialize_window(void){
     return TRUE;
 }
 
+void setup_initial_screen(void){
+    start_button.x = SCREEN_WIDTH/2 - 50;
+    start_button.y = SCREEN_HEIGHT/2 - 25;
+    start_button.radius = 50;
+    start_button.r = 255;
+    start_button.g = 255;
+    start_button.b = 255;
+    start_button.a = 255;
+}
+
+
 void setup(){
     srand(time(NULL));
     int i, j;
@@ -73,15 +87,14 @@ void setup(){
         balls[i]->y = (double)rand()/RAND_MAX*(SCREEN_HEIGHT - 2*balls[i]->radius);
         balls[i]->collision_wallx = FALSE;
         balls[i]->collision_wally = FALSE;
-        balls[i]->color_r = rand()%255;
-        balls[i]->color_g = rand()%255;
-        balls[i]->color_b = rand()%255;
+        balls[i]->color_r = rand()%256;
+        balls[i]->color_g = rand()%256;
+        balls[i]->color_b = rand()%256;
         balls[i]->color_a = 255;
         balls[i]->impulse = 0;
     }
-    
-
     last_frame_time = 0;
+    state = RUNNING;
 }
 void destroy_window(void){
     int i, j;

@@ -20,6 +20,8 @@ extern SDL_Renderer* renderer;
 extern int running;
 extern float CR;
 extern int n_balls;
+extern State state;
+extern Circle_Button start_button;
 
 
 //Array de ponteiros para as particulas

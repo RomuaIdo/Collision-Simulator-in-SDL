@@ -1,6 +1,18 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+typedef enum{
+    INITIAL_SCREEN,
+    PROCESSING,
+    RUNNING
+} State;
+
+typedef struct{
+    int x, y;
+    int radius;
+    unsigned char r, g, b, a;
+} Circle_Button;
+
 typedef struct{ //Strcut do circulo
     float V; // Modulo da Velocidade
     double angle; // Angulo da velocidade

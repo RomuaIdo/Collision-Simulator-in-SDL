@@ -5,12 +5,15 @@
 
 //FUNCOES SETUPS
 int initialize_window(void);
+void setup_initial_screen(void);
 void setup();
 int main(void);
 // FUNCOES DE PROCESSAMENTO
+void process_initial_screen_input(void);
 void process_input(void);
 void update(void);
 // FUNCOES DE RENDERIZAÇÃO
+void render_initial_screen(void);
 void render(void);
 // FUNCOES DE DESTRUIÇÃO
 void destroy_window(void);
