@@ -51,8 +51,8 @@ int initialize_window(void){
 }
 
 void setup_initial_screen(void){
-    start_button.x = SCREEN_WIDTH/2 - 50;
-    start_button.y = SCREEN_HEIGHT/2 - 25;
+    start_button.x = SCREEN_WIDTH/2;
+    start_button.y = SCREEN_HEIGHT/2;
     start_button.radius = 50;
     start_button.r = 255;
     start_button.g = 255;
