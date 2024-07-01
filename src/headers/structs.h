@@ -19,6 +19,8 @@ typedef struct{ //Strcut do circulo
     float x, y;
     float vx, vy;
     int collision_wallx, collision_wally;
+    int isOn_Wall;
+    int stop;
     int radius;
     float mass;
     float impulse;

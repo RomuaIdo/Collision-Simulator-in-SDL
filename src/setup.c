@@ -16,7 +16,7 @@ int running = FALSE;
 State state = INITIAL_SCREEN;
 Circle_Button start_button;
 
-float CR = 1.0;
+float CR = 0.0;
 Ball ball;
 Ball **balls;
 int n_balls = 4;
@@ -87,6 +87,8 @@ void setup(){
         balls[i]->y = (double)rand()/RAND_MAX*(SCREEN_HEIGHT - 2*balls[i]->radius);
         balls[i]->collision_wallx = FALSE;
         balls[i]->collision_wally = FALSE;
+        balls[i]->isOn_Wall = FALSE;
+        balls[i]->stop = FALSE;
         balls[i]->color_r = rand()%256;
         balls[i]->color_g = rand()%256;
         balls[i]->color_b = rand()%256;
