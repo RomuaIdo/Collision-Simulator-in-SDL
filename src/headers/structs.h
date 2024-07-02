@@ -8,10 +8,15 @@ typedef enum{
 } State;
 
 typedef struct{
-    int x, y;
-    int radius;
+    double x, y;
+    double radius;
     unsigned char r, g, b, a;
 } Circle_Button;
+
+typedef struct{
+    SDL_Point points[3];
+    unsigned char r, g, b, a;
+} Triangle;
 
 typedef struct{ //Strcut do circulo
     float V; // Modulo da Velocidade

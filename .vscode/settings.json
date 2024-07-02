@@ -4,6 +4,8 @@
         "structs.h": "c",
         "math.h": "c",
         "macros.h": "c",
-        "*.wav": "c"
+        "*.wav": "c",
+        "sdl_mixer.h": "c",
+        "functions.h": "c"
     }
 }

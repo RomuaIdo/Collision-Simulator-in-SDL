@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
-#include <math.h>
-#include <time.h>
 #include "./headers/macros.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
@@ -14,14 +9,14 @@ SDL_Renderer* renderer = NULL;
 int running = FALSE;
 
 State state = INITIAL_SCREEN;
-Circle_Button start_button;
+Circle_Button *start_button;
 Mix_Chunk *collision_sound;
-float CR = 1.001;
+float CR = 0.0;
 Ball ball;
 Ball **balls;
 int n_balls = 10;
 Collision ***collisions;
-
+Triangle *triangle;
 
 int initialize(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
@@ -65,21 +60,31 @@ Mix_Chunk* loadSound(const char* path) {
 }
 
 void setup_initial_screen(void){
-    start_button.x = SCREEN_WIDTH/2;
-    start_button.y = SCREEN_HEIGHT/2;
-    start_button.radius = 50;
-    start_button.r = 255;
-    start_button.g = 255;
-    start_button.b = 255;
-    start_button.a = 255;
+    triangle = (Triangle*)malloc(sizeof(Triangle));
+    start_button = (Circle_Button*)malloc(sizeof(Circle_Button));
+    start_button->x = SCREEN_WIDTH/2;
+    start_button->y = SCREEN_HEIGHT/2;
+    start_button->radius = 50;
+    start_button->r = 255;
+    start_button->g = 255;
+    start_button->b = 255;
+    start_button->a = 255;
+    triangle->points[0] = (SDL_Point){(start_button->x - (TRIANGLE_FACTOR)*(start_button->radius/2)), (start_button->y - (TRIANGLE_FACTOR)*start_button->radius)};
+    triangle->points[1] = (SDL_Point){(start_button->x - (TRIANGLE_FACTOR)*(start_button->radius/2)), (start_button->y + (TRIANGLE_FACTOR)*start_button->radius)};
+    triangle->points[2] = (SDL_Point){(start_button->x + (TRIANGLE_FACTOR)*(start_button->radius)), (start_button->y)};
+    triangle->r = 0;
+    triangle->g = 0;
+    triangle->b = 0;
+    triangle->a = 255;
 }
 
 
 void setup(){
     srand(time(NULL));
     int i, j;
+    //Mix_AllocateChannels(32);
     printf("Setup done\n");
-    collision_sound = loadSound("./src/assets/collision.wav");
+    collision_sound = loadSound("./assets/collision.wav");
     collisions = (Collision***)malloc(n_balls*sizeof(Collision**));
     for(i = 0; i < n_balls; i++){
         collisions[i] = (Collision**)malloc(n_balls*sizeof(Collision*));
@@ -91,7 +96,7 @@ void setup(){
     balls = (Ball**)malloc(n_balls*sizeof(Ball*));
     for(i = 0; i < n_balls; i++){
         balls[i] = (Ball*)malloc(sizeof(Ball)); // Aloca memória para cada Ball
-        balls[i]->mass = (((double)rand()/RAND_MAX)*2) + 1;
+        balls[i]->mass = (((double)rand()/RAND_MAX)*2)+1;
         balls[i]->radius = (int)(balls[i]->mass*25);
         balls[i]->V = 400;
         balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;

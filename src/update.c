@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <SDL2/SDL.h>
 #include "./headers/globals.h"
 #include "./headers/macros.h"
 #include "./headers/functions.h"
@@ -22,10 +20,19 @@ void process_initial_screen_input(void)
         {
             int x, y;
             SDL_GetMouseState(&x, &y);
-            if (sqrt(pow(x - start_button.x, 2) + pow(y - start_button.y, 2)) <= start_button.radius)
+            if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <= start_button->radius)
             {
                 state = PROCESSING;
             }
+        }
+        break;
+
+    case SDL_KEYDOWN:
+        switch (event.key.keysym.sym)
+        {
+        case SDLK_ESCAPE:
+            running = FALSE;
+            break;
         }
         break;
     }
@@ -97,7 +104,6 @@ void update(void)
 
             if (collisions[i][j]->collision == TRUE)
             {
-                Mix_PlayChannel(-1, collision_sound, 0);
                 collisions[i][j]->vrel_n = (balls[j]->vx - balls[i]->vx) * collisions[i][j]->nx + (balls[j]->vy - balls[i]->vy) * collisions[i][j]->ny;
 
                 collisions[i][j]->impulse_n = (-(1 + CR) * collisions[i][j]->vrel_n) / (1 / balls[i]->mass + 1 / balls[j]->mass);
@@ -111,6 +117,8 @@ void update(void)
                 balls[j]->vy += collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[j]->mass;
                 balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
                 balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
+                Mix_VolumeChunk(collision_sound, (int)collisions[i][j]->impulse_n);
+                Mix_PlayChannel(-1, collision_sound, 0);
             }
         }
     }
@@ -125,11 +133,6 @@ void update(void)
             balls[i]->angle = M_PI - balls[i]->angle;
             balls[i]->vx = -(balls[i]->V * cos(balls[i]->angle)) * CR;
             balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
-            if (CR == 0)
-            {
-                balls[i]->vx = 0;
-                balls[i]->vy = 0;
-            }
         }
         else
         {

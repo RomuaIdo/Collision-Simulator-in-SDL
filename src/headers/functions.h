@@ -17,6 +17,7 @@ void update(void);
 // FUNCOES DE RENDERIZAÇÃO
 void render_initial_screen(void);
 void render(void);
+void fill_triangle(SDL_Renderer *renderer, SDL_Point* p);
 // FUNCOES DE DESTRUIÇÃO
 void destroy_window(void);
 // FUNCAO PARA DESENHAR UM CIRCULO
