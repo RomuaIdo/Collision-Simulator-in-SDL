@@ -2,6 +2,8 @@
     "files.associations": {
         "*.py": "python",
         "structs.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "macros.h": "c",
+        "*.wav": "c"
     }
 }

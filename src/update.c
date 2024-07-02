@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include "./headers/globals.h"
+#include "./headers/macros.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
 int collision_wallx = FALSE;
@@ -81,14 +82,13 @@ void update(void)
                 collisions[i][j]->vcm_y = (balls[i]->mass * balls[i]->vy + balls[j]->mass * balls[j]->vy) / (balls[i]->mass + balls[j]->mass);
 
                 // Corrigir a sobreposição das bolas caso a colisao nao seja elastica
-                if (CR != 0)
-                {
-                    collisions[i][j]->overlap = (balls[i]->radius + balls[j]->radius) - collisions[i][j]->distance;
-                    balls[i]->x -= collisions[i][j]->overlap * collisions[i][j]->nx;
-                    balls[i]->y -= collisions[i][j]->overlap * collisions[i][j]->ny;
-                    balls[j]->x += collisions[i][j]->overlap * collisions[i][j]->nx;
-                    balls[j]->y += collisions[i][j]->overlap * collisions[i][j]->ny;
-                }
+
+                collisions[i][j]->overlap = (balls[i]->radius + balls[j]->radius) - collisions[i][j]->distance;
+                balls[i]->x -= collisions[i][j]->overlap * collisions[i][j]->nx;
+                balls[i]->y -= collisions[i][j]->overlap * collisions[i][j]->ny;
+                balls[j]->x += collisions[i][j]->overlap * collisions[i][j]->nx;
+                balls[j]->y += collisions[i][j]->overlap * collisions[i][j]->ny;
+
             }
             else
             {
@@ -97,21 +97,11 @@ void update(void)
 
             if (collisions[i][j]->collision == TRUE)
             {
-                if(CR == 0 && (balls[i]->isOn_Wall == TRUE || balls[j]->isOn_Wall == TRUE))
-                {
-                    balls[i]->vx = 0;
-                    balls[i]->vy = 0;
-                    balls[j]->vx = 0;
-                    balls[j]->vy = 0;
-                    balls[i]->isOn_Wall = TRUE;
-                    balls[j]->isOn_Wall = TRUE;
-                    balls[i]->stop = TRUE;
-                    balls[j]->stop = TRUE;
-                }
+                Mix_PlayChannel(-1, collision_sound, 0);
                 collisions[i][j]->vrel_n = (balls[j]->vx - balls[i]->vx) * collisions[i][j]->nx + (balls[j]->vy - balls[i]->vy) * collisions[i][j]->ny;
 
                 collisions[i][j]->impulse_n = (-(1 + CR) * collisions[i][j]->vrel_n) / (1 / balls[i]->mass + 1 / balls[j]->mass);
-                
+
                 balls[i]->vx -= collisions[i][j]->impulse_n * collisions[i][j]->nx / balls[i]->mass;
                 balls[i]->vy -= collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[i]->mass;
                 balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
@@ -127,14 +117,6 @@ void update(void)
 
     for (i = 0; i < n_balls; i++)
     {
-        if(balls[i]->x >= SCREEN_WIDTH - balls[i]->radius || balls[i]->x - balls[i]->radius <= 0 || balls[i]->y >= SCREEN_HEIGHT - balls[i]->radius || balls[i]->y - balls[i]->radius <= 0)
-        {
-            balls[i]->isOn_Wall = TRUE;
-        }
-        else if(balls[i]->stop == FALSE)
-        {
-            balls[i]->isOn_Wall = FALSE;
-        }
 
         if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= SCREEN_WIDTH - balls[i]->radius || balls[i]->x - balls[i]->radius <= 0))
         {
@@ -161,11 +143,6 @@ void update(void)
             balls[i]->angle = 2 * M_PI - balls[i]->angle;
             balls[i]->vy = -(balls[i]->V * sin(balls[i]->angle)) * CR;
             balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
-            if (CR == 0)
-            {
-                balls[i]->vy = 0;
-                balls[i]->vx = 0;
-            }
         }
         else
         {

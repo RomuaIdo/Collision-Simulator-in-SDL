@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <math.h>
 #include <time.h>
-#include "./headers/globals.h"
+#include "./headers/macros.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
-
 
 //Variáveis Globais
 int last_frame_time; //Tempo do último frame
@@ -15,14 +15,15 @@ int running = FALSE;
 
 State state = INITIAL_SCREEN;
 Circle_Button start_button;
-
-float CR = 0.0;
+Mix_Chunk *collision_sound;
+float CR = 1.001;
 Ball ball;
 Ball **balls;
-int n_balls = 4;
+int n_balls = 10;
 Collision ***collisions;
 
-int initialize_window(void){
+
+int initialize(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
         fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
         return FALSE;
@@ -46,8 +47,21 @@ int initialize_window(void){
         fprintf(stderr, "Error creating SDL renderer: %s\n", SDL_GetError());
         return FALSE;
     }
+
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+        fprintf(stderr, "Error initializing SDL_mixer: %s\n", Mix_GetError());
+        return FALSE;
+    }
     
     return TRUE;
+}
+
+Mix_Chunk* loadSound(const char* path) {
+    Mix_Chunk* sound = Mix_LoadWAV(path);
+    if (sound == NULL) {
+        printf("Erro ao carregar som: %s\n", Mix_GetError());
+    }
+    return sound;
 }
 
 void setup_initial_screen(void){
@@ -65,7 +79,7 @@ void setup(){
     srand(time(NULL));
     int i, j;
     printf("Setup done\n");
-
+    collision_sound = loadSound("./src/assets/collision.wav");
     collisions = (Collision***)malloc(n_balls*sizeof(Collision**));
     for(i = 0; i < n_balls; i++){
         collisions[i] = (Collision**)malloc(n_balls*sizeof(Collision*));
@@ -79,7 +93,7 @@ void setup(){
         balls[i] = (Ball*)malloc(sizeof(Ball)); // Aloca memória para cada Ball
         balls[i]->mass = (((double)rand()/RAND_MAX)*2) + 1;
         balls[i]->radius = (int)(balls[i]->mass*25);
-        balls[i]->V = 100;
+        balls[i]->V = 400;
         balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;
         balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
         balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
@@ -87,13 +101,10 @@ void setup(){
         balls[i]->y = (double)rand()/RAND_MAX*(SCREEN_HEIGHT - 2*balls[i]->radius);
         balls[i]->collision_wallx = FALSE;
         balls[i]->collision_wally = FALSE;
-        balls[i]->isOn_Wall = FALSE;
-        balls[i]->stop = FALSE;
         balls[i]->color_r = rand()%256;
         balls[i]->color_g = rand()%256;
         balls[i]->color_b = rand()%256;
         balls[i]->color_a = 255;
-        balls[i]->impulse = 0;
     }
     last_frame_time = 0;
     state = RUNNING;
@@ -119,5 +130,7 @@ void destroy_window(void){
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    Mix_FreeChunk(collision_sound);
+    Mix_CloseAudio();
     SDL_Quit();
 }

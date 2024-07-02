@@ -2,9 +2,11 @@
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
+#include <SDL2/SDL_mixer.h>
 
 //FUNCOES SETUPS
-int initialize_window(void);
+Mix_Chunk* loadSound(const char* path);
+int initialize(void);
 void setup_initial_screen(void);
 void setup();
 int main(void);

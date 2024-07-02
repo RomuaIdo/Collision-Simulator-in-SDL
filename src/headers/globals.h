@@ -2,17 +2,9 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "./structs.h"
-//Constantes
-#define SCREEN_WIDTH 800 //Largura da tela
-#define SCREEN_HEIGHT 600 //Altura da tela
-#define FALSE 0 //Falso
-#define TRUE 1 //Verdadeiro
-#define FPS 60 //Frames por segundo
-#define FRAME_TARGET_TIME (1000 / FPS) //Tempo de um frame
-#ifndef M_PI
-# define M_PI		3.14159265358979323846    /* pi */
-#endif
+
 // Variáveis Globais
 extern int last_frame_time; // Tempo do último frame
 extern SDL_Window* window;
@@ -22,7 +14,7 @@ extern float CR;
 extern int n_balls;
 extern State state;
 extern Circle_Button start_button;
-
+extern Mix_Chunk *collision_sound;
 
 //Array de ponteiros para as particulas
 extern Ball **balls;

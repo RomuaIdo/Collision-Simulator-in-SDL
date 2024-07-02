@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "./headers/globals.h"
+#include "./headers/macros.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
 
 
 int main(){
-    running = initialize_window();
+    running = initialize();
 
     
     while (running)
