@@ -55,13 +55,22 @@ void process_input(void)
             running = FALSE;
             break;
         }
+    case SDLK_p:
+        if (state == RUNNING)
+        {
+            state = PAUSED;
+        }
+        else if (state == PAUSED)
+        {
+            state = RUNNING;
+        }
+        break;
         break;
     }
 }
 
 void update(void)
 {
-    int i, j;
     float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
     last_frame_time = SDL_GetTicks();
     // Uncomment this block of code to limit the frame rate
@@ -71,7 +80,14 @@ void update(void)
     {
         SDL_Delay(time_to_wait);
     }
+    if(state == RUNNING){
+        update_positions(delta_time);
+    }
+}
 
+void update_positions(float delta_time)
+{
+    int i, j;
     for (i = 0; i < n_balls; i++)
     {
         collisions[i][i]->collision = FALSE;
@@ -95,7 +111,6 @@ void update(void)
                 balls[i]->y -= collisions[i][j]->overlap * collisions[i][j]->ny;
                 balls[j]->x += collisions[i][j]->overlap * collisions[i][j]->nx;
                 balls[j]->y += collisions[i][j]->overlap * collisions[i][j]->ny;
-
             }
             else
             {
@@ -126,9 +141,9 @@ void update(void)
     for (i = 0; i < n_balls; i++)
     {
 
-        if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= SCREEN_WIDTH - balls[i]->radius || balls[i]->x - balls[i]->radius <= 0))
+        if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= border->x2 - balls[i]->radius || balls[i]->x - balls[i]->radius <= border->x1))
         {
-            balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, SCREEN_WIDTH - balls[i]->radius));
+            balls[i]->x = fmax(balls[i]->radius + border->x1, fmin(balls[i]->x, border->x2 - balls[i]->radius));
             balls[i]->collision_wallx = TRUE;
             balls[i]->angle = M_PI - balls[i]->angle;
             balls[i]->vx = -(balls[i]->V * cos(balls[i]->angle)) * CR;
@@ -139,9 +154,9 @@ void update(void)
             balls[i]->collision_wallx = FALSE;
         }
 
-        if (balls[i]->collision_wally == FALSE && (balls[i]->y >= SCREEN_HEIGHT - balls[i]->radius || balls[i]->y - balls[i]->radius <= 0))
+        if (balls[i]->collision_wally == FALSE && (balls[i]->y >= border->y2 - balls[i]->radius || balls[i]->y - balls[i]->radius <= border->y1))
         {
-            balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, SCREEN_HEIGHT - balls[i]->radius));
+            balls[i]->y = fmax(balls[i]->radius + border->y1, fmin(balls[i]->y, border->y2 - balls[i]->radius));
             balls[i]->collision_wally = TRUE;
             balls[i]->angle = 2 * M_PI - balls[i]->angle;
             balls[i]->vy = -(balls[i]->V * sin(balls[i]->angle)) * CR;
@@ -151,8 +166,8 @@ void update(void)
         {
             balls[i]->collision_wally = FALSE;
         }
-        balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, SCREEN_WIDTH - balls[i]->radius));
-        balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, SCREEN_HEIGHT - balls[i]->radius));
+        balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
+        balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, border->y2 - balls[i]->radius));
         balls[i]->x += balls[i]->vx * delta_time;
         balls[i]->y += balls[i]->vy * delta_time;
     }

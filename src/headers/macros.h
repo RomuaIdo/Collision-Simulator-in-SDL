@@ -19,5 +19,6 @@
 #define M_PI		3.14159265358979323846    /* pi */
 #endif
 #define TRIANGLE_FACTOR 0.8 //Fator de escala do triangulo
+#define BORDER_FACTOR 0.9 //Fator de escala da borda
 
 #endif

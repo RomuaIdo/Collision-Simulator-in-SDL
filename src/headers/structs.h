@@ -4,8 +4,13 @@
 typedef enum{
     INITIAL_SCREEN,
     PROCESSING,
-    RUNNING
+    RUNNING,
+    PAUSED
 } State;
+typedef struct{
+    int x1, y1;
+    int x2, y2;
+}Border;
 
 typedef struct{
     double x, y;

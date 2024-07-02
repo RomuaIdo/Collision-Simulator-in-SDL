@@ -18,13 +18,13 @@ int main(){
         else if(state == PROCESSING){
             setup();
         }
-        else if (state == RUNNING) {
+        else if (state == RUNNING || state == PAUSED) {
             process_input();
             update();
             render();
         }
     }
-    
+    free_alocatedmemory();
     destroy_window();
 
     return 0;

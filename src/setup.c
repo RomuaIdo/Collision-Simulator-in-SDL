@@ -11,12 +11,13 @@ int running = FALSE;
 State state = INITIAL_SCREEN;
 Circle_Button *start_button;
 Mix_Chunk *collision_sound;
-float CR = 0.0;
+float CR = 1.0;
 Ball ball;
 Ball **balls;
 int n_balls = 10;
 Collision ***collisions;
 Triangle *triangle;
+Border *border;
 
 int initialize(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
@@ -60,6 +61,8 @@ Mix_Chunk* loadSound(const char* path) {
 }
 
 void setup_initial_screen(void){
+    border = (Border*)malloc(sizeof(Border));
+    *border = (Border){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     triangle = (Triangle*)malloc(sizeof(Triangle));
     start_button = (Circle_Button*)malloc(sizeof(Circle_Button));
     start_button->x = SCREEN_WIDTH/2;
@@ -115,6 +118,15 @@ void setup(){
     state = RUNNING;
 }
 void destroy_window(void){
+    
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    Mix_FreeChunk(collision_sound);
+    Mix_CloseAudio();
+    SDL_Quit();
+}
+
+void free_alocatedmemory(void){
     int i, j;
     // Free colisions
     if (collisions != NULL) {
@@ -133,9 +145,7 @@ void destroy_window(void){
         }
         free(balls); // Depois libera o array de ponteiros
     }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    Mix_FreeChunk(collision_sound);
-    Mix_CloseAudio();
-    SDL_Quit();
+    free(border);
+    free(triangle);
+    free(start_button);
 }

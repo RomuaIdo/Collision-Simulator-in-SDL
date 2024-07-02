@@ -18,7 +18,7 @@ extern Mix_Chunk *collision_sound;
 extern Triangle *triangle;
 //Array de ponteiros para as particulas
 extern Ball **balls;
-
+extern Border *border;
 //Matriz de ponteiros de colisao entre particulas
 extern Collision ***collisions;
 
