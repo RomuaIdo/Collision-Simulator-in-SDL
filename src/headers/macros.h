@@ -3,10 +3,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <math.h>
 #include <time.h>
+#include <SDL2/SDL_ttf.h>
 
 //Constantes
 #define SCREEN_WIDTH 1200 //Largura da tela
@@ -19,6 +21,8 @@
 #define M_PI		3.14159265358979323846    /* pi */
 #endif
 #define TRIANGLE_FACTOR 0.8 //Fator de escala do triangulo
-#define BORDER_FACTOR 0.9 //Fator de escala da borda
+#define BOX_FACTOR_X 0.75 //Fator de escala da borda
+#define BOX_FACTOR_Y 0.8 //Fator de escala da borda
+#define GRAVITY 9.8 //Gravidade
 
 #endif

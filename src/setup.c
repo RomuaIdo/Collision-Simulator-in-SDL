@@ -8,16 +8,19 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 int running = FALSE;
 
-State state = INITIAL_SCREEN;
+State state = PROCESSING;
 Circle_Button *start_button;
 Mix_Chunk *collision_sound;
 float CR = 1.0;
 Ball ball;
 Ball **balls;
-int n_balls = 10;
+int n_balls = 4;
 Collision ***collisions;
 Triangle *triangle;
 Border *border;
+SDL_Rect *box;
+int gravity = FALSE;
+
 
 int initialize(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
@@ -87,6 +90,8 @@ void setup(){
     int i, j;
     //Mix_AllocateChannels(32);
     printf("Setup done\n");
+    box = (SDL_Rect*)malloc(sizeof(SDL_Rect));
+    *box = (SDL_Rect){50, 50, (BOX_FACTOR_X*SCREEN_WIDTH)-50, (BOX_FACTOR_Y*SCREEN_HEIGHT)-50};
     collision_sound = loadSound("./assets/collision.wav");
     collisions = (Collision***)malloc(n_balls*sizeof(Collision**));
     for(i = 0; i < n_balls; i++){
@@ -100,7 +105,7 @@ void setup(){
     for(i = 0; i < n_balls; i++){
         balls[i] = (Ball*)malloc(sizeof(Ball)); // Aloca memória para cada Ball
         balls[i]->mass = (((double)rand()/RAND_MAX)*2)+1;
-        balls[i]->radius = (int)(balls[i]->mass*25);
+        balls[i]->radius = (int)(balls[i]->mass*15);
         balls[i]->V = 400;
         balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;
         balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
@@ -115,7 +120,7 @@ void setup(){
         balls[i]->color_a = 255;
     }
     last_frame_time = 0;
-    state = RUNNING;
+    state = INITIAL_SCREEN;
 }
 void destroy_window(void){
     
@@ -148,4 +153,5 @@ void free_alocatedmemory(void){
     free(border);
     free(triangle);
     free(start_button);
+    free(box);
 }

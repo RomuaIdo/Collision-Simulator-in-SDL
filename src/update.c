@@ -1,5 +1,5 @@
-#include "./headers/globals.h"
 #include "./headers/macros.h"
+#include "./headers/globals.h"
 #include "./headers/functions.h"
 #include "./headers/structs.h"
 int collision_wallx = FALSE;
@@ -22,7 +22,9 @@ void process_initial_screen_input(void)
             SDL_GetMouseState(&x, &y);
             if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <= start_button->radius)
             {
-                state = PROCESSING;
+                state = RUNNING;
+                *border = (Border){55, 55, (BOX_FACTOR_X*SCREEN_WIDTH)-5, (BOX_FACTOR_Y*SCREEN_HEIGHT)-5};
+                shuffle_balls();
             }
         }
         break;
@@ -54,17 +56,28 @@ void process_input(void)
         case SDLK_ESCAPE:
             running = FALSE;
             break;
+
+        case SDLK_p:
+            if (state == RUNNING)
+            {
+                state = PAUSED;
+            }
+            else if (state == PAUSED)
+            {
+                state = RUNNING;
+            }
+            break;
+        case SDLK_s:
+            shuffle_balls();
+            break;
         }
-    case SDLK_p:
-        if (state == RUNNING)
-        {
-            state = PAUSED;
-        }
-        else if (state == PAUSED)
-        {
-            state = RUNNING;
-        }
-        break;
+        case SDLK_g:
+            if(gravity == TRUE){
+                gravity = FALSE;
+            }else{
+                gravity = TRUE;
+            }
+            break;
         break;
     }
 }
@@ -80,7 +93,8 @@ void update(void)
     {
         SDL_Delay(time_to_wait);
     }
-    if(state == RUNNING){
+    if (state != PAUSED)
+    {
         update_positions(delta_time);
     }
 }
@@ -132,15 +146,19 @@ void update_positions(float delta_time)
                 balls[j]->vy += collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[j]->mass;
                 balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
                 balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
-                Mix_VolumeChunk(collision_sound, (int)collisions[i][j]->impulse_n);
-                Mix_PlayChannel(-1, collision_sound, 0);
+                if (state == RUNNING)
+                {
+                    Mix_VolumeChunk(collision_sound, (int)collisions[i][j]->impulse_n);
+                    Mix_PlayChannel(-1, collision_sound, 0);
+                }
             }
         }
     }
 
     for (i = 0; i < n_balls; i++)
     {
-
+                balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
+        balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, border->y2 - balls[i]->radius));
         if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= border->x2 - balls[i]->radius || balls[i]->x - balls[i]->radius <= border->x1))
         {
             balls[i]->x = fmax(balls[i]->radius + border->x1, fmin(balls[i]->x, border->x2 - balls[i]->radius));
@@ -166,9 +184,23 @@ void update_positions(float delta_time)
         {
             balls[i]->collision_wally = FALSE;
         }
-        balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
-        balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, border->y2 - balls[i]->radius));
+        if(gravity == TRUE){
+            balls[i]->vy += GRAVITY;
+            balls[i]->y = fmax(0, balls[i]->y);
+        }
         balls[i]->x += balls[i]->vx * delta_time;
         balls[i]->y += balls[i]->vy * delta_time;
+    }
+}
+
+void shuffle_balls(void){
+    int i;
+    for(i = 0; i < n_balls; i++){
+        balls[i]->x = (double)rand()/RAND_MAX*(border->x2 - 2*balls[i]->radius) + (balls[i]->radius + border->x1);
+        balls[i]->y = (double)rand()/RAND_MAX*(border->y2 - 2*balls[i]->radius) + (balls[i]->radius + border->y1);
+        balls[i]->V = 400;
+        balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;
+        balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
+        balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
     }
 }

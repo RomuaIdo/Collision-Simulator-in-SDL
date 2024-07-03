@@ -21,5 +21,7 @@ extern Ball **balls;
 extern Border *border;
 //Matriz de ponteiros de colisao entre particulas
 extern Collision ***collisions;
+extern SDL_Rect *box;
+extern int gravity;
 
 #endif
