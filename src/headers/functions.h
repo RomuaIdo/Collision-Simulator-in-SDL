@@ -14,12 +14,14 @@ int main(int argc, char *argv[]);
 void process_initial_screen_input(void);
 void process_input(void);
 void update(void);
+void update_mass_center(void);
 void update_positions(float delta_time);
 void shuffle_balls(void);
 // FUNCOES DE RENDERIZAÇÃO
 void render(void);
 void fillTriangle(SDL_Renderer *renderer, SDL_Point* p);
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness);
+void draw_arrow(SDL_Renderer* renderer, int x1, int y1, int x2, int y2);
 // FUNCOES DE DESTRUIÇÃO
 void destroy_window(void);
 void free_alocatedmemory(void);

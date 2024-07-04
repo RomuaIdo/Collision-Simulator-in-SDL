@@ -19,11 +19,12 @@ Collision ***collisions;
 Triangle *triangle;
 Border *border;
 SDL_Rect *box;
-int gravity = FALSE;
 TTF_Font *font = NULL;
 Texto *titulo;
 SDL_Texture *text_texture = NULL;
 SDL_Rect *text_rect;
+ShowRender *show_render;
+MassCenter *mass_center;
 char text[20] = "Collision Simulator";
 
 int initialize(void)
@@ -123,6 +124,10 @@ void setup()
     srand(time(NULL));
     int i, j;
     // Mix_AllocateChannels(32);
+    show_render = (ShowRender *)malloc(sizeof(ShowRender));
+    *show_render = (ShowRender){FALSE, FALSE, FALSE};
+    mass_center = (MassCenter *)malloc(sizeof(MassCenter));
+    *mass_center = (MassCenter){0, 0, 0, 0, 0, 5};
     box = (SDL_Rect *)malloc(sizeof(SDL_Rect));
     *box = (SDL_Rect){50, 50, (BOX_FACTOR_X * SCREEN_WIDTH) - 50, (BOX_FACTOR_Y * SCREEN_HEIGHT) - 50};
     collision_sound = loadSound("./assets/collision.wav");
@@ -141,6 +146,7 @@ void setup()
     {
         balls[i] = (Ball *)malloc(sizeof(Ball)); // Aloca memória para cada Ball
         balls[i]->mass = (((double)rand() / RAND_MAX) * 2) + 1;
+        mass_center->total_mass += balls[i]->mass;
         balls[i]->radius = (int)(balls[i]->mass * 15);
         balls[i]->V = 400;
         balls[i]->angle = ((double)rand() / RAND_MAX) * M_PI;
@@ -160,9 +166,12 @@ void setup()
 }
 void destroy_window(void)
 {
+    free_alocatedmemory();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     Mix_FreeChunk(collision_sound);
+    TTF_CloseFont(font);
+    TTF_Quit();
     Mix_CloseAudio();
     SDL_Quit();
 }
@@ -197,5 +206,13 @@ void free_alocatedmemory(void)
     free(border);
     free(triangle);
     free(start_button);
-    free(box);
+    if(box != NULL){
+        free(box);
+    }
+    if(show_render != NULL){
+        free(show_render);
+    }
+    if(mass_center != NULL){
+        free(mass_center);
+    }
 }

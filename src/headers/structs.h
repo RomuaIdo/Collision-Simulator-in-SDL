@@ -7,6 +7,20 @@ typedef enum{
     RUNNING,
     PAUSED
 } State;
+
+typedef struct{
+    int x, y;
+    double vx, vy;
+    double total_mass;
+    int radius;
+} MassCenter;
+
+typedef struct{
+    int mass_center;
+    int vectors;
+    int gravity;
+} ShowRender;
+
 typedef struct{
     SDL_Color color;
     int size;

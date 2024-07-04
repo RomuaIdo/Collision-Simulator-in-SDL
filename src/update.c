@@ -23,7 +23,8 @@ void process_initial_screen_input(void)
             if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <= start_button->radius)
             {
                 state = RUNNING;
-                *border = (Border){55, 55, (BOX_FACTOR_X*SCREEN_WIDTH)-5, (BOX_FACTOR_Y*SCREEN_HEIGHT)-5};
+                *border = (Border){55, 55, (BOX_FACTOR_X * SCREEN_WIDTH) - 5, (BOX_FACTOR_Y * SCREEN_HEIGHT) - 5};
+                sprintf(text, "Bola: %d", 0);
                 shuffle_balls();
             }
         }
@@ -70,14 +71,40 @@ void process_input(void)
         case SDLK_s:
             shuffle_balls();
             break;
-        }
+
         case SDLK_g:
-            if(gravity == TRUE){
-                gravity = FALSE;
-            }else{
-                gravity = TRUE;
+            if (show_render->gravity == TRUE)
+            {
+                show_render->gravity = FALSE;
+            }
+            else
+            {
+                show_render->gravity = TRUE;
             }
             break;
+
+        case SDLK_c:
+            if (show_render->mass_center == TRUE)
+            {
+                show_render->mass_center = FALSE;
+            }
+            else
+            {
+                show_render->mass_center = TRUE;
+            }
+            break;
+
+        case SDLK_v:
+            if (show_render->vectors == TRUE)
+            {
+                show_render->vectors = FALSE;
+            }
+            else
+            {
+                show_render->vectors = TRUE;
+            }
+            break;
+        }
         break;
     }
 }
@@ -157,7 +184,7 @@ void update_positions(float delta_time)
 
     for (i = 0; i < n_balls; i++)
     {
-                balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
+        balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
         balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, border->y2 - balls[i]->radius));
         if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= border->x2 - balls[i]->radius || balls[i]->x - balls[i]->radius <= border->x1))
         {
@@ -184,22 +211,46 @@ void update_positions(float delta_time)
         {
             balls[i]->collision_wally = FALSE;
         }
-        if(gravity == TRUE){
+        if (show_render->gravity == TRUE)
+        {
             balls[i]->vy += GRAVITY;
             balls[i]->y = fmax(0, balls[i]->y);
         }
         balls[i]->x += balls[i]->vx * delta_time;
         balls[i]->y += balls[i]->vy * delta_time;
     }
+    if(show_render->mass_center == TRUE){
+        update_mass_center();
+    }
+}
+void update_mass_center(void)
+{
+    int i;
+    float x = 0, y = 0, vx = 0, vy = 0, total_mass = 0;
+    for (i = 0; i < n_balls; i++)
+    {
+        x += balls[i]->x * balls[i]->mass;
+        y += balls[i]->y * balls[i]->mass;
+        vx += balls[i]->vx * balls[i]->mass;
+        vy += balls[i]->vy * balls[i]->mass;
+        total_mass += balls[i]->mass;
+    }
+    mass_center->vx = vx / total_mass;
+    mass_center->vy = vy / total_mass;
+    mass_center->x = x / total_mass;
+    mass_center->y = y / total_mass;
+    mass_center->total_mass = total_mass;
 }
 
-void shuffle_balls(void){
+void shuffle_balls(void)
+{
     int i;
-    for(i = 0; i < n_balls; i++){
-        balls[i]->x = (double)rand()/RAND_MAX*(border->x2 - 2*balls[i]->radius) + (balls[i]->radius + border->x1);
-        balls[i]->y = (double)rand()/RAND_MAX*(border->y2 - 2*balls[i]->radius) + (balls[i]->radius + border->y1);
+    for (i = 0; i < n_balls; i++)
+    {
+        balls[i]->x = (double)rand() / RAND_MAX * (border->x2 - 2 * balls[i]->radius) + (balls[i]->radius + border->x1);
+        balls[i]->y = (double)rand() / RAND_MAX * (border->y2 - 2 * balls[i]->radius) + (balls[i]->radius + border->y1);
         balls[i]->V = 400;
-        balls[i]->angle = ((double)rand()/RAND_MAX)*M_PI;
+        balls[i]->angle = ((double)rand() / RAND_MAX) * M_PI;
         balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
         balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
     }

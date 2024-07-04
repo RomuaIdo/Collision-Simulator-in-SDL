@@ -25,7 +25,6 @@ int main(int argc, char *argv[]){
             render();
         }
     }
-    free_alocatedmemory();
     destroy_window();
 
     return 0;

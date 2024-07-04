@@ -23,10 +23,11 @@ extern Border *border;
 //Matriz de ponteiros de colisao entre particulas
 extern Collision ***collisions;
 extern SDL_Rect *box;
-extern int gravity;
 extern TTF_Font *font;
 extern SDL_Texture *text_texture;
 extern SDL_Rect* text_rect;
 extern Texto *fonte;
 extern char text[20];
+extern ShowRender *show_render;
+extern MassCenter *mass_center;
 #endif

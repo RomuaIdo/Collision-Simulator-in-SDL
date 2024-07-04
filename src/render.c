@@ -3,7 +3,6 @@
 #include "./headers/functions.h"
 #include "./headers/structs.h"
 
-
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness)
 {
     // Top border
@@ -168,28 +167,52 @@ void fillTriangle(SDL_Renderer *renderer, SDL_Point *p)
     }
 }
 
-
-void create_text_texture(SDL_Renderer* renderer, const char* text, SDL_Color color) {
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, color);
-    if (!text_surface) {
+void create_text_texture(SDL_Renderer *renderer, const char *text, SDL_Color color)
+{
+    SDL_Surface *text_surface = TTF_RenderText_Solid(font, text, color);
+    if (!text_surface)
+    {
         fprintf(stderr, "Error creating text surface: %s\n", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-    if (!text_texture) {
+    if (!text_texture)
+    {
         fprintf(stderr, "Error creating text texture: %s\n", SDL_GetError());
         SDL_FreeSurface(text_surface);
         exit(EXIT_FAILURE);
     }
 
     text_rect->x = (SCREEN_WIDTH - text_surface->w) / 2;
-    text_rect->y = ((SCREEN_HEIGHT - text_surface->h)/ 2) - 200;  // Adjust the y position as needed
+    text_rect->y = (SCREEN_HEIGHT - text_surface->h) / 2 - 200; // Adjust the y position as needed
     text_rect->w = text_surface->w;
     text_rect->h = text_surface->h;
 
-    
     SDL_FreeSurface(text_surface);
+}
+
+void draw_arrow(SDL_Renderer *renderer, int x1, int y1, int x2, int y2)
+{
+    // Desenhar linha principal da seta
+    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+
+    // Calcular o ângulo da linha principal
+    float angle = atan2(y2 - y1, x2 - x1);
+
+    // Tamanho e ângulo das asas da seta
+    float arrow_head_length = 10.0f;
+    float arrow_head_angle = M_PI / 6; // 30 graus
+
+    // Calcular as posições das asas da seta
+    int arrow_x1 = x2 - (int)(arrow_head_length * cos(angle - arrow_head_angle));
+    int arrow_y1 = y2 - (int)(arrow_head_length * sin(angle - arrow_head_angle));
+    int arrow_x2 = x2 - (int)(arrow_head_length * cos(angle + arrow_head_angle));
+    int arrow_y2 = y2 - (int)(arrow_head_length * sin(angle + arrow_head_angle));
+
+    // Desenhar as asas da seta
+    SDL_RenderDrawLine(renderer, x2, y2, arrow_x1, arrow_y1);
+    SDL_RenderDrawLine(renderer, x2, y2, arrow_x2, arrow_y2);
 }
 
 void render(void)
@@ -221,10 +244,25 @@ void render(void)
         // Renderiza a borda
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         draw_box(renderer, box, 5);
+        // SDL_RenderCopy(renderer, text_texture, NULL, text_rect);
 
-        for(i = 0; i < n_balls; i++){
+        for (i = 0; i < n_balls; i++)
+        {
             SDL_SetRenderDrawColor(renderer, balls[i]->color_r, balls[i]->color_g, balls[i]->color_b, balls[i]->color_a);
-            SDL_RenderFillCircle(renderer, border->x2 + 40, (border->y1 + 20) + (i*80), 20);
+            SDL_RenderFillCircle(renderer, border->x2 + 40, (border->y1 + 20) + (i * 80), 20);
+            if (show_render->vectors == TRUE)
+            {
+                draw_arrow(renderer, balls[i]->x, balls[i]->y, balls[i]->x + (balls[i]->vx / 2), balls[i]->y + (balls[i]->vy / 2));
+            }
+        }
+        if (show_render->mass_center == TRUE)
+        {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillCircle(renderer, mass_center->x, mass_center->y, mass_center->radius);
+            if (show_render->vectors == TRUE)
+            {
+                draw_arrow(renderer, mass_center->x, mass_center->y, mass_center->x + (mass_center->vx / 2), mass_center->y + (mass_center->vy / 2));
+            }
         }
     }
 
