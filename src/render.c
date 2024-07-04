@@ -169,6 +169,29 @@ void fillTriangle(SDL_Renderer *renderer, SDL_Point *p)
 }
 
 
+void create_text_texture(SDL_Renderer* renderer, const char* text, SDL_Color color) {
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, color);
+    if (!text_surface) {
+        fprintf(stderr, "Error creating text surface: %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
+    
+    text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    if (!text_texture) {
+        fprintf(stderr, "Error creating text texture: %s\n", SDL_GetError());
+        SDL_FreeSurface(text_surface);
+        exit(EXIT_FAILURE);
+    }
+
+    text_rect->x = (SCREEN_WIDTH - text_surface->w) / 2;
+    text_rect->y = ((SCREEN_HEIGHT - text_surface->h)/ 2) - 200;  // Adjust the y position as needed
+    text_rect->w = text_surface->w;
+    text_rect->h = text_surface->h;
+
+    
+    SDL_FreeSurface(text_surface);
+}
+
 void render(void)
 {
     int i;
@@ -191,6 +214,7 @@ void render(void)
         // Renderiza o triângulo no botão de início
         SDL_SetRenderDrawColor(renderer, triangle->r, triangle->g, triangle->b, triangle->a);
         fillTriangle(renderer, triangle->points);
+        SDL_RenderCopy(renderer, text_texture, NULL, text_rect);
     }
     else
     {

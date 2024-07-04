@@ -1,5 +1,5 @@
 compile:
-	gcc -Wall -std=c99 ./src/*.c -lSDL2 -lSDL2_mixer -lm -o ./build/linux/main
+	gcc -Wall -std=c99 ./src/*.c -lSDL2 -lSDL2_mixer -lSDL2_ttf -lm -o ./build/linux/main
 	
 compile_win32bit:
 	i686-w64-mingw32-gcc -I src/include/w32-bit -L src/lib/w32-bit -Wall -std=c99 ./src/*.c -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_ttf -lm -o ./build/windows-32bit/main.exe

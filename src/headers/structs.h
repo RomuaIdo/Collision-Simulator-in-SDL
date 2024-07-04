@@ -8,6 +8,11 @@ typedef enum{
     PAUSED
 } State;
 typedef struct{
+    SDL_Color color;
+    int size;
+} Texto;
+
+typedef struct{
     int x1, y1;
     int x2, y2;
 }Border;

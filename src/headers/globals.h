@@ -2,6 +2,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include "./structs.h"
 
@@ -23,5 +24,9 @@ extern Border *border;
 extern Collision ***collisions;
 extern SDL_Rect *box;
 extern int gravity;
-
+extern TTF_Font *font;
+extern SDL_Texture *text_texture;
+extern SDL_Rect* text_rect;
+extern Texto *fonte;
+extern char text[20];
 #endif

@@ -26,4 +26,7 @@ void free_alocatedmemory(void);
 // FUNCAO PARA DESENHAR UM CIRCULO
 int SDL_RenderFillCircle(SDL_Renderer * renderer, int x, int y, int radius);
 int SDL_RenderDrawCircle(SDL_Renderer * renderer, int x, int y, int radius);
+// FUNCAO PARA DESENHAR UM TEXTO
+void load_font(const char* font_path, int font_size);
+void create_text_texture(SDL_Renderer* renderer, const char* text, SDL_Color color);
 #endif
