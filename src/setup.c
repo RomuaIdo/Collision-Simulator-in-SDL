@@ -125,7 +125,7 @@ void setup()
     int i, j;
     // Mix_AllocateChannels(32);
     show_render = (ShowRender *)malloc(sizeof(ShowRender));
-    *show_render = (ShowRender){FALSE, FALSE, FALSE};
+    *show_render = (ShowRender){FALSE, FALSE, FALSE, FALSE};
     mass_center = (MassCenter *)malloc(sizeof(MassCenter));
     *mass_center = (MassCenter){0, 0, 0, 0, 0, 5};
     box = (SDL_Rect *)malloc(sizeof(SDL_Rect));
@@ -152,8 +152,8 @@ void setup()
         balls[i]->angle = ((double)rand() / RAND_MAX) * M_PI;
         balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
         balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
-        balls[i]->x = (double)rand() / RAND_MAX * (SCREEN_WIDTH - 2 * balls[i]->radius);
-        balls[i]->y = (double)rand() / RAND_MAX * (SCREEN_HEIGHT - 2 * balls[i]->radius);
+        balls[i]->x = (double)rand() / RAND_MAX * (SCREEN_WIDTH - (3 * balls[i]->radius)) + balls[i]->radius;
+        balls[i]->y = (double)rand() / RAND_MAX * (SCREEN_HEIGHT - (3 * balls[i]->radius)) + balls[i]->radius;
         balls[i]->collision_wallx = FALSE;
         balls[i]->collision_wally = FALSE;
         balls[i]->color_r = rand() % 256;

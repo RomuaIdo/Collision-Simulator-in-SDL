@@ -5,6 +5,8 @@
 
 
 int main(int argc, char *argv[]){
+    printf("Digite o coeficiente de restituição: ");
+    scanf("%f", &CR);
     running = initialize();
 
     

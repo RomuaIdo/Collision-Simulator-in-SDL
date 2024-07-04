@@ -19,6 +19,7 @@ typedef struct{
     int mass_center;
     int vectors;
     int gravity;
+    int mute;
 } ShowRender;
 
 typedef struct{

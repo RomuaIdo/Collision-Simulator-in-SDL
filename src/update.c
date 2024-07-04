@@ -104,6 +104,17 @@ void process_input(void)
                 show_render->vectors = TRUE;
             }
             break;
+
+        case SDLK_m:
+            if (show_render->mute == TRUE)
+            {
+                show_render->mute = FALSE;
+            }
+            else
+            {
+                show_render->mute = TRUE;
+            }
+            break;
         }
         break;
     }
@@ -173,7 +184,7 @@ void update_positions(float delta_time)
                 balls[j]->vy += collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[j]->mass;
                 balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
                 balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
-                if (state == RUNNING)
+                if (state == RUNNING && show_render->mute == FALSE)
                 {
                     Mix_VolumeChunk(collision_sound, (int)collisions[i][j]->impulse_n);
                     Mix_PlayChannel(-1, collision_sound, 0);
@@ -247,11 +258,14 @@ void shuffle_balls(void)
     int i;
     for (i = 0; i < n_balls; i++)
     {
-        balls[i]->x = (double)rand() / RAND_MAX * (border->x2 - 2 * balls[i]->radius) + (balls[i]->radius + border->x1);
-        balls[i]->y = (double)rand() / RAND_MAX * (border->y2 - 2 * balls[i]->radius) + (balls[i]->radius + border->y1);
+        balls[i]->x = (double)rand() / RAND_MAX * (border->x2 - (3 * balls[i]->radius)) + (balls[i]->radius + border->x1);
+        balls[i]->y = (double)rand() / RAND_MAX * (border->y2 - (3 * balls[i]->radius)) + (balls[i]->radius + border->y1);
         balls[i]->V = 400;
         balls[i]->angle = ((double)rand() / RAND_MAX) * M_PI;
         balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
         balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
+    }
+    if(show_render->mass_center == TRUE){
+        update_mass_center();
     }
 }
