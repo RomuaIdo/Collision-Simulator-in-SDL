@@ -1,0 +1,13 @@
+Instale as dependências: SDL2 SDL2_mixer SDL_ttf
+
+Ubuntu/Debian: sudo apt update sudo apt install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+Fedora: sudo dnf check-update sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel
+
+Arch Linux: sudo pacman -Syu sudo pacman -S sdl2 sdl2_mixer sdl2_ttf
+
+OpenSUSE: sudo zypper refresh sudo zypper install libSDL2-devel libSDL2_mixer-devel libSDL2_ttf-devel
+
+Gentoo: sudo emerge --sync sudo emerge media-libs/libsdl2 media-libs/sdl2-mixer media-libs/sdl2-ttf
+
+Depois disso execute o arquivo main na pasta build/linux
