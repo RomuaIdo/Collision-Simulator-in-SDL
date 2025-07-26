@@ -1,7 +1,7 @@
-#include "./headers/macros.h"
-#include "./headers/globals.h"
-#include "./headers/functions.h"
-#include "./headers/structs.h"
+#include "../include/macros.h"
+#include "../include/globals.h"
+#include "../include/functions.h"
+#include "../include/structs.h"
 
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness)
 {

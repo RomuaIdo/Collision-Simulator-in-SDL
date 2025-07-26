@@ -1,6 +1,6 @@
-#include "./headers/macros.h"
-#include "./headers/functions.h"
-#include "./headers/structs.h"
+#include "../include/macros.h"
+#include "../include/functions.h"
+#include "../include/structs.h"
 
 // Variáveis Globais
 int last_frame_time; // Tempo do último frame
