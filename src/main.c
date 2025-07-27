@@ -8,14 +8,10 @@ int main(int argc, char *argv[]){
     printf("Digite o coeficiente de restituição: ");
     scanf("%f", &CR);
     running = initialize();
-
-    
+    setup();
+    setup_initial_screen();
     while (running)
     {
-        if(state == PROCESSING){
-            setup_initial_screen();
-            setup();
-        }
         if (state == INITIAL_SCREEN){
             process_initial_screen_input();
             update();

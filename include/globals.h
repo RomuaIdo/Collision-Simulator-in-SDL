@@ -1,4 +1,3 @@
-//Arquivo de constantes e variaveis do jogo
 #ifndef GLOBALS_H
 #define GLOBALS_H
 #include <SDL2/SDL.h>
@@ -6,8 +5,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "./structs.h"
 
-// Variáveis Globais
-extern int last_frame_time; // Tempo do último frame
+extern int last_frame_time;
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern int running;
@@ -17,10 +15,8 @@ extern State state;
 extern Circle_Button *start_button;
 extern Mix_Chunk *collision_sound;
 extern Triangle *triangle;
-//Array de ponteiros para as particulas
-extern Ball **balls;
+extern BallNode *balls;
 extern Border *border;
-//Matriz de ponteiros de colisao entre particulas
 extern Collision ***collisions;
 extern SDL_Rect *box;
 extern TTF_Font *font;

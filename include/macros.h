@@ -10,19 +10,17 @@
 #include <time.h>
 #include <SDL2/SDL_ttf.h>
 
-//Constantes
-#define SCREEN_WIDTH 1200 //Largura da tela
-#define SCREEN_HEIGHT 900 //Altura da tela
-#define FALSE 0 //Falso
-#define TRUE 1 //Verdadeiro
-#define FPS 60 //Frames por segundo
-#define FRAME_TARGET_TIME (1000 / FPS) //Tempo de um frame
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 900
+#define FALSE 0
+#define TRUE 1
+#define FPS 60
+#define FRAME_TARGET_TIME (1000 / FPS)
 #ifndef M_PI
-#define M_PI		3.14159265358979323846    /* pi */
+#define M_PI		3.14159265358979323846
 #endif
-#define TRIANGLE_FACTOR 0.8 //Fator de escala do triangulo
-#define BOX_FACTOR_X 0.75 //Fator de escala da borda
-#define BOX_FACTOR_Y 0.8 //Fator de escala da borda
-#define GRAVITY 9.8 //Gravidade
-
+#define TRIANGLE_FACTOR 0.8
+#define BOX_FACTOR_X 0.75
+#define BOX_FACTOR_Y 0.8 
+#define GRAVITY 9.8 
 #endif

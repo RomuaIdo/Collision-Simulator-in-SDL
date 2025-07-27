@@ -1,271 +1,336 @@
-#include "../include/macros.h"
-#include "../include/globals.h"
 #include "../include/functions.h"
+#include "../include/globals.h"
+#include "../include/macros.h"
 #include "../include/structs.h"
+
+#define MAX_COLLISIONS 1000
+
 int collision_wallx = FALSE;
 int collision_wally = FALSE;
 
-void process_initial_screen_input(void)
-{
-    SDL_Event event;
-    SDL_PollEvent(&event);
-    switch (event.type)
-    {
+void process_initial_screen_input(void) {
+  SDL_Event event;
+
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
     case SDL_QUIT:
-        running = FALSE;
-        break;
+      running = FALSE;
+      break;
 
     case SDL_MOUSEBUTTONDOWN:
-        if (event.button.button == SDL_BUTTON_LEFT)
-        {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-            if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <= start_button->radius)
-            {
-                state = RUNNING;
-                *border = (Border){55, 55, (BOX_FACTOR_X * SCREEN_WIDTH) - 5, (BOX_FACTOR_Y * SCREEN_HEIGHT) - 5};
-                sprintf(text, "Bola: %d", 0);
-                shuffle_balls();
-            }
+      if (event.button.button == SDL_BUTTON_LEFT) {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <=
+            start_button->radius) {
+          state = RUNNING;
+          *border = (Border){55, 55, (BOX_FACTOR_X * SCREEN_WIDTH) - 5,
+                             (BOX_FACTOR_Y * SCREEN_HEIGHT) - 5};
+          sprintf(text, "Bola: %d", 0);
+          shuffle_balls();
         }
-        break;
+      }
+      break;
 
     case SDL_KEYDOWN:
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_ESCAPE:
-            running = FALSE;
-            break;
-        }
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE:
+        running = FALSE;
         break;
+      }
+      break;
     }
+  }
 }
 
-void process_input(void)
-{
-    SDL_Event event;
-    SDL_PollEvent(&event);
-    switch (event.type)
-    {
+void process_input(void) {
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
     case SDL_QUIT:
+      running = FALSE;
+      break;
+
+    case SDL_KEYDOWN:
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE:
         running = FALSE;
         break;
 
-    case SDL_KEYDOWN:
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_ESCAPE:
-            running = FALSE;
-            break;
-
-        case SDLK_p:
-            if (state == RUNNING)
-            {
-                state = PAUSED;
-            }
-            else if (state == PAUSED)
-            {
-                state = RUNNING;
-            }
-            break;
-        case SDLK_s:
-            shuffle_balls();
-            break;
-
-        case SDLK_g:
-            if (show_render->gravity == TRUE)
-            {
-                show_render->gravity = FALSE;
-            }
-            else
-            {
-                show_render->gravity = TRUE;
-            }
-            break;
-
-        case SDLK_c:
-            if (show_render->mass_center == TRUE)
-            {
-                show_render->mass_center = FALSE;
-            }
-            else
-            {
-                show_render->mass_center = TRUE;
-            }
-            break;
-
-        case SDLK_v:
-            if (show_render->vectors == TRUE)
-            {
-                show_render->vectors = FALSE;
-            }
-            else
-            {
-                show_render->vectors = TRUE;
-            }
-            break;
-
-        case SDLK_m:
-            if (show_render->mute == TRUE)
-            {
-                show_render->mute = FALSE;
-            }
-            else
-            {
-                show_render->mute = TRUE;
-            }
-            break;
+      case SDLK_p:
+        if (state == RUNNING) {
+          state = PAUSED;
+        } else if (state == PAUSED) {
+          state = RUNNING;
         }
         break;
+      case SDLK_s:
+        shuffle_balls();
+        break;
+
+      case SDLK_g:
+        show_render->gravity = !show_render->gravity;
+        break;
+
+      case SDLK_c:
+        show_render->mass_center = !show_render->mass_center;
+        break;
+
+      case SDLK_v:
+        show_render->vectors = !show_render->vectors;
+        break;
+
+      case SDLK_m:
+        show_render->mute = !show_render->mute;
+        break;
+
+      case SDLK_PLUS:
+      case SDLK_KP_PLUS:
+        add_random_ball();
+        break;
+
+      case SDLK_MINUS:
+      case SDLK_KP_MINUS:
+        remove_last_ball();
+        break;
+      }
+      break;
     }
+  }
 }
 
-void update(void)
-{
-    float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
-    last_frame_time = SDL_GetTicks();
-    // Uncomment this block of code to limit the frame rate
-    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
+void update(void) {
+  float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
+  last_frame_time = SDL_GetTicks();
 
-    if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME)
-    {
-        SDL_Delay(time_to_wait);
-    }
-    if (state != PAUSED)
-    {
-        update_positions(delta_time);
-    }
+  int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
+  if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
+    SDL_Delay(time_to_wait);
+  }
+
+  if (state != PAUSED) {
+    update_positions(delta_time);
+  }
 }
 
-void update_positions(float delta_time)
-{
-    int i, j;
-    for (i = 0; i < n_balls; i++)
-    {
-        collisions[i][i]->collision = FALSE;
+void update_positions(float delta_time) {
+  CollisionData collisions[MAX_COLLISIONS];
+  int collision_count = 0;
 
-        for (j = i + 1; j < n_balls; j++)
-        {
-            collisions[i][j]->distance = sqrt(pow(balls[i]->x - balls[j]->x, 2) + pow(balls[i]->y - balls[j]->y, 2));
-            if (collisions[i][j]->distance <= balls[i]->radius + balls[j]->radius)
-            {
-                collisions[i][j]->collision = TRUE;
-                collisions[i][j]->angle = atan2(balls[j]->y - balls[i]->y, balls[j]->x - balls[i]->x);
-                collisions[i][j]->nx = cos(collisions[i][j]->angle);
-                collisions[i][j]->ny = sin(collisions[i][j]->angle);
-                collisions[i][j]->vcm_x = (balls[i]->mass * balls[i]->vx + balls[j]->mass * balls[j]->vx) / (balls[i]->mass + balls[j]->mass);
-                collisions[i][j]->vcm_y = (balls[i]->mass * balls[i]->vy + balls[j]->mass * balls[j]->vy) / (balls[i]->mass + balls[j]->mass);
+  BallNode *node_i = balls;
+  while (node_i) {
+    Ball *a = &(node_i->ball);
+    BallNode *node_j = node_i->next;
 
-                // Corrigir a sobreposição das bolas caso a colisao nao seja elastica
+    while (node_j) {
+      Ball *b = &(node_j->ball);
+      float dx = b->x - a->x;
+      float dy = b->y - a->y;
+      float distance = sqrt(dx * dx + dy * dy);
+      float min_distance = a->radius + b->radius;
 
-                collisions[i][j]->overlap = (balls[i]->radius + balls[j]->radius) - collisions[i][j]->distance;
-                balls[i]->x -= collisions[i][j]->overlap * collisions[i][j]->nx;
-                balls[i]->y -= collisions[i][j]->overlap * collisions[i][j]->ny;
-                balls[j]->x += collisions[i][j]->overlap * collisions[i][j]->nx;
-                balls[j]->y += collisions[i][j]->overlap * collisions[i][j]->ny;
-            }
-            else
-            {
-                collisions[i][j]->collision = FALSE;
-            }
-
-            if (collisions[i][j]->collision == TRUE)
-            {
-                collisions[i][j]->vrel_n = (balls[j]->vx - balls[i]->vx) * collisions[i][j]->nx + (balls[j]->vy - balls[i]->vy) * collisions[i][j]->ny;
-
-                collisions[i][j]->impulse_n = (-(1 + CR) * collisions[i][j]->vrel_n) / (1 / balls[i]->mass + 1 / balls[j]->mass);
-
-                balls[i]->vx -= collisions[i][j]->impulse_n * collisions[i][j]->nx / balls[i]->mass;
-                balls[i]->vy -= collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[i]->mass;
-                balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
-                balls[i]->angle = atan2(balls[i]->vy, balls[i]->vx);
-
-                balls[j]->vx += collisions[i][j]->impulse_n * collisions[i][j]->nx / balls[j]->mass;
-                balls[j]->vy += collisions[i][j]->impulse_n * collisions[i][j]->ny / balls[j]->mass;
-                balls[j]->V = sqrt(pow(balls[j]->vx, 2) + pow(balls[j]->vy, 2));
-                balls[j]->angle = atan2(balls[j]->vy, balls[j]->vx);
-                if (state == RUNNING && show_render->mute == FALSE)
-                {
-                    Mix_VolumeChunk(collision_sound, (int)collisions[i][j]->impulse_n);
-                    Mix_PlayChannel(-1, collision_sound, 0);
-                }
-            }
+      if (distance < min_distance) {
+        if (collision_count < MAX_COLLISIONS) {
+          collisions[collision_count].a = a;
+          collisions[collision_count].b = b;
+          collisions[collision_count].nx = dx / distance;
+          collisions[collision_count].ny = dy / distance;
+          collisions[collision_count].overlap = min_distance - distance;
+          collision_count++;
         }
+      }
+      node_j = node_j->next;
+    }
+    node_i = node_i->next;
+  }
+
+  for (int i = 0; i < collision_count; i++) {
+    Ball *a = collisions[i].a;
+    Ball *b = collisions[i].b;
+    const float nx = collisions[i].nx;
+    const float ny = collisions[i].ny;
+    const float overlap = collisions[i].overlap;
+
+    const float displace = overlap * 0.5f;
+    a->x -= nx * displace;
+    a->y -= ny * displace;
+    b->x += nx * displace;
+    b->y += ny * displace;
+  }
+
+  for (int i = 0; i < collision_count; i++) {
+    Ball *a = collisions[i].a;
+    Ball *b = collisions[i].b;
+    const float nx = collisions[i].nx;
+    const float ny = collisions[i].ny;
+
+    float vrel = (b->vx - a->vx) * nx + (b->vy - a->vy) * ny;
+    float impulse = -(1 + CR) * vrel / (1 / a->mass + 1 / b->mass);
+
+    a->vx -= impulse * nx / a->mass;
+    a->vy -= impulse * ny / a->mass;
+    b->vx += impulse * nx / b->mass;
+    b->vy += impulse * ny / b->mass;
+
+    a->V = sqrt(a->vx * a->vx + a->vy * a->vy);
+    a->angle = atan2(a->vy, a->vx);
+    b->V = sqrt(b->vx * b->vx + b->vy * b->vy);
+    b->angle = atan2(b->vy, b->vx);
+
+    if (state == RUNNING && !show_render->mute) {
+      Mix_VolumeChunk(collision_sound, (int)fabs(impulse));
+      Mix_PlayChannel(-1, collision_sound, 0);
+    }
+  }
+
+  BallNode *current = balls;
+  while (current) {
+    Ball *b = &(current->ball);
+
+    b->x += b->vx * delta_time;
+    b->y += b->vy * delta_time;
+
+    handle_wall_collision(b, border, CR);
+
+    if (show_render->gravity) {
+      b->vy += GRAVITY;
     }
 
-    for (i = 0; i < n_balls; i++)
-    {
-        balls[i]->x = fmax(balls[i]->radius, fmin(balls[i]->x, border->x2 - balls[i]->radius));
-        balls[i]->y = fmax(balls[i]->radius, fmin(balls[i]->y, border->y2 - balls[i]->radius));
-        if (balls[i]->collision_wallx == FALSE && (balls[i]->x >= border->x2 - balls[i]->radius || balls[i]->x - balls[i]->radius <= border->x1))
-        {
-            balls[i]->x = fmax(balls[i]->radius + border->x1, fmin(balls[i]->x, border->x2 - balls[i]->radius));
-            balls[i]->collision_wallx = TRUE;
-            balls[i]->angle = M_PI - balls[i]->angle;
-            balls[i]->vx = -(balls[i]->V * cos(balls[i]->angle)) * CR;
-            balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
-        }
-        else
-        {
-            balls[i]->collision_wallx = FALSE;
-        }
+    current = current->next;
+  }
 
-        if (balls[i]->collision_wally == FALSE && (balls[i]->y >= border->y2 - balls[i]->radius || balls[i]->y - balls[i]->radius <= border->y1))
-        {
-            balls[i]->y = fmax(balls[i]->radius + border->y1, fmin(balls[i]->y, border->y2 - balls[i]->radius));
-            balls[i]->collision_wally = TRUE;
-            balls[i]->angle = 2 * M_PI - balls[i]->angle;
-            balls[i]->vy = -(balls[i]->V * sin(balls[i]->angle)) * CR;
-            balls[i]->V = sqrt(pow(balls[i]->vx, 2) + pow(balls[i]->vy, 2));
-        }
-        else
-        {
-            balls[i]->collision_wally = FALSE;
-        }
-        if (show_render->gravity == TRUE)
-        {
-            balls[i]->vy += GRAVITY;
-            balls[i]->y = fmax(0, balls[i]->y);
-        }
-        balls[i]->x += balls[i]->vx * delta_time;
-        balls[i]->y += balls[i]->vy * delta_time;
-    }
-    if(show_render->mass_center == TRUE){
-        update_mass_center();
-    }
+  if (show_render->mass_center) {
+    update_mass_center();
+  }
 }
-void update_mass_center(void)
-{
-    int i;
-    float x = 0, y = 0, vx = 0, vy = 0, total_mass = 0;
-    for (i = 0; i < n_balls; i++)
-    {
-        x += balls[i]->x * balls[i]->mass;
-        y += balls[i]->y * balls[i]->mass;
-        vx += balls[i]->vx * balls[i]->mass;
-        vy += balls[i]->vy * balls[i]->mass;
-        total_mass += balls[i]->mass;
-    }
+
+void update_mass_center(void) {
+  float x = 0, y = 0, vx = 0, vy = 0, total_mass = 0;
+
+  BallNode *current = balls;
+  while (current) {
+    Ball *b = &(current->ball);
+    x += b->x * b->mass;
+    y += b->y * b->mass;
+    vx += b->vx * b->mass;
+    vy += b->vy * b->mass;
+    total_mass += b->mass;
+    current = current->next;
+  }
+
+  if (total_mass > 0) {
     mass_center->vx = vx / total_mass;
     mass_center->vy = vy / total_mass;
     mass_center->x = x / total_mass;
     mass_center->y = y / total_mass;
     mass_center->total_mass = total_mass;
+  }
 }
 
-void shuffle_balls(void)
-{
-    int i;
-    for (i = 0; i < n_balls; i++)
-    {
-        balls[i]->x = (double)rand() / RAND_MAX * (border->x2 - (3 * balls[i]->radius)) + (balls[i]->radius + border->x1);
-        balls[i]->y = (double)rand() / RAND_MAX * (border->y2 - (3 * balls[i]->radius)) + (balls[i]->radius + border->y1);
-        balls[i]->V = 400;
-        balls[i]->angle = ((double)rand() / RAND_MAX) * M_PI;
-        balls[i]->vx = balls[i]->V * cos(balls[i]->angle);
-        balls[i]->vy = balls[i]->V * sin(balls[i]->angle);
+void shuffle_balls(void) {
+  BallNode *current = balls;
+  while (current) {
+    Ball *b = &(current->ball);
+    b->x =
+        (float)rand() / RAND_MAX * (border->x2 - border->x1 - 2 * b->radius) +
+        border->x1 + b->radius;
+    b->y =
+        (float)rand() / RAND_MAX * (border->y2 - border->y1 - 2 * b->radius) +
+        border->y1 + b->radius;
+    b->V = 400;
+    b->angle = ((float)rand() / RAND_MAX) * 2 * M_PI;
+    b->vx = b->V * cos(b->angle);
+    b->vy = b->V * sin(b->angle);
+    current = current->next;
+  }
+
+  if (show_render->mass_center) {
+    update_mass_center();
+  }
+}
+
+void add_random_ball() {
+  Ball new_ball;
+  new_ball.mass = ((float)rand() / RAND_MAX) * 2.0f + 1.0f;
+  new_ball.radius = (int)(new_ball.mass * 15);
+  new_ball.V = 400.0f;
+  new_ball.angle = ((float)rand() / RAND_MAX) * 2 * M_PI;
+  new_ball.vx = new_ball.V * cos(new_ball.angle);
+  new_ball.vy = new_ball.V * sin(new_ball.angle);
+  new_ball.x = (float)rand() / RAND_MAX *
+                   (border->x2 - border->x1 - 2 * new_ball.radius) +
+               border->x1 + new_ball.radius;
+  new_ball.y = (float)rand() / RAND_MAX *
+                   (border->y2 - border->y1 - 2 * new_ball.radius) +
+               border->y1 + new_ball.radius;
+  new_ball.collision_wallx = FALSE;
+  new_ball.collision_wally = FALSE;
+  new_ball.color_r = rand() % 256;
+  new_ball.color_g = rand() % 256;
+  new_ball.color_b = rand() % 256;
+  new_ball.color_a = 255;
+
+  BallNode *new_node = (BallNode *)malloc(sizeof(BallNode));
+  new_node->ball = new_ball;
+  new_node->next = NULL;
+
+  if (!balls) {
+    balls = new_node;
+  } else {
+    BallNode *current = balls;
+    while (current->next) {
+      current = current->next;
     }
-    if(show_render->mass_center == TRUE){
-        update_mass_center();
+    current->next = new_node;
+  }
+
+  n_balls++;
+  mass_center->total_mass += new_ball.mass;
+}
+
+void remove_last_ball() {
+  if (!balls)
+    return;
+
+  if (!balls->next) {
+    free(balls);
+    balls = NULL;
+  } else {
+    BallNode *current = balls;
+    BallNode *prev = NULL;
+
+    while (current->next) {
+      prev = current;
+      current = current->next;
     }
+
+    if (prev) {
+      prev->next = NULL;
+    }
+    mass_center->total_mass -= current->ball.mass;
+    free(current);
+  }
+
+  n_balls--;
+  if (show_render->mass_center && n_balls > 0) {
+    update_mass_center();
+  }
+}
+
+void handle_wall_collision(Ball *b, Border *border_area, float restitution) {
+  if (b->x - b->radius < border_area->x1) {
+    b->x = border_area->x1 + b->radius;
+    b->vx = fabs(b->vx) * restitution;
+  } else if (b->x + b->radius > border_area->x2) {
+    b->x = border_area->x2 - b->radius;
+    b->vx = -fabs(b->vx) * restitution;
+  }
+
+  if (b->y - b->radius < border_area->y1) {
+    b->y = border_area->y1 + b->radius;
+    b->vy = fabs(b->vy) * restitution;
+  } else if (b->y + b->radius > border_area->y2) {
+    b->y = border_area->y2 - b->radius;
+    b->vy = -fabs(b->vy) * restitution;
+  }
 }
