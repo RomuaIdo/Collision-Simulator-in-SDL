@@ -1,7 +1,21 @@
-#include "../include/functions.h"
-#include "../include/globals.h"
-#include "../include/macros.h"
-#include "../include/structs.h"
+#include "../include/graphics.h"
+#include "../include/objects.h"
+#include "../include/input.h"
+#include "../include/main.h"
+
+TTF_Font *font = NULL;
+SDL_Texture *text_texture = NULL;
+extern SDL_Rect *text_rect;
+extern Circle_Button *start_button;
+extern Triangle *triangle;
+extern State state;
+extern BallNode *balls;
+extern ShowRender *show_render;
+extern SDL_Renderer *renderer;
+extern MassCenter *mass_center;
+extern SDL_Rect *box;
+extern Mix_Chunk *collision_sound;
+extern SDL_Window *window;
 
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness) {
   SDL_Rect top = {rect->x, rect->y, rect->w, thickness};
@@ -239,3 +253,24 @@ void render(void) {
 
   SDL_RenderPresent(renderer);
 }
+
+void load_font(const char *font_path, int font_size) {
+  font = TTF_OpenFont(font_path, font_size);
+  if (!font) {
+    fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
+    exit(EXIT_FAILURE);
+  }
+}
+
+void destroy_window(void) {
+  free_alocatedmemory();
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  Mix_FreeChunk(collision_sound);
+  TTF_CloseFont(font);
+  TTF_Quit();
+  Mix_CloseAudio();
+  SDL_Quit();
+}
+
+
