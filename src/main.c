@@ -1,48 +1,39 @@
 #include "../include/main.h"
-
-
-State state = INITIAL_SCREEN;
-int running = FALSE;
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
-ShowRender *show_render;
-MassCenter *mass_center;
-float CR = 1.0;
-Mix_Chunk *collision_sound;
-int last_frame_time;
-Border *border;
-SDL_Rect *box;
-Texto *titulo;
-Circle_Button *start_button;
-SDL_Rect *text_rect;
-Triangle *triangle;
-BallNode *balls = NULL;
-int n_balls = 0;
-char text[20] = "Collision Simulator";
+#include "../include/input.h"
+#include "../include/objects.h"
 
 int main(int argc, char *argv[]) {
+  Simulator *simulator;
+  simulator = (Simulator *)malloc(sizeof(Simulator));
+  strcpy(simulator->text, "Collision Simulator");
+  if (!simulator) {
+    fprintf(stderr, "Memory allocation failed\n");
+    return EXIT_FAILURE;
+  }
+
   printf("Digite o coeficiente de restituição: ");
-  scanf("%f", &CR);
-  running = initialize();
-  setup();
-  setup_initial_screen();
-  while (running) {
-    if (state == INITIAL_SCREEN) {
-      process_initial_screen_input();
-      update();
-      render();
-    } else if (state == RUNNING || state == PAUSED) {
-      process_input();
-      update();
-      render();
+  scanf("%f", &simulator->CR);
+
+  simulator->running = initialize(simulator);
+  setup(simulator);
+  setup_initial_screen(simulator);
+  while (simulator->running) {
+    if (simulator->state == INITIAL_SCREEN) {
+      process_initial_screen_input(simulator);
+      update(simulator);
+      render(simulator);
+    } else if (simulator->state == RUNNING || simulator->state == PAUSED) {
+      process_input(simulator);
+      update(simulator);
+      render(simulator);
     }
   }
-  destroy_window();
+  destroy_window(simulator);
 
   return 0;
 }
 
-int initialize(void) {
+int initialize(Simulator *simulator) {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
     return FALSE;
@@ -53,17 +44,17 @@ int initialize(void) {
     return FALSE;
   }
 
-  window =
+  simulator->window =
       SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                        SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_BORDERLESS);
-  if (!window) {
+  if (!simulator->window) {
     fprintf(stderr, "Error creating SDL window: %s\n", SDL_GetError());
     return FALSE;
   }
 
-  renderer = SDL_CreateRenderer(window, -1, 0);
+  simulator->renderer = SDL_CreateRenderer(simulator->window, -1, 0);
 
-  if (!renderer) {
+  if (!simulator->renderer) {
     fprintf(stderr, "Error creating SDL renderer: %s\n", SDL_GetError());
     return FALSE;
   }
@@ -72,53 +63,56 @@ int initialize(void) {
     fprintf(stderr, "Error initializing SDL_mixer: %s\n", Mix_GetError());
     return FALSE;
   }
-
+  simulator->running = TRUE;
   return TRUE;
 }
 
-void setup() {
+void setup(Simulator *simulator) {
   srand(time(NULL));
-  int i;
   // Mix_AllocateChannels(32);
-  show_render = (ShowRender *)malloc(sizeof(ShowRender));
-  *show_render = (ShowRender){FALSE, FALSE, FALSE, FALSE};
-  mass_center = (MassCenter *)malloc(sizeof(MassCenter));
-  *mass_center = (MassCenter){0, 0, 0, 0, 0, 5};
-  box = (SDL_Rect *)malloc(sizeof(SDL_Rect));
-  *box = (SDL_Rect){50, 50, (BOX_FACTOR_X * SCREEN_WIDTH) - 50,
-                    (BOX_FACTOR_Y * SCREEN_HEIGHT) - 50};
-  collision_sound = loadSound("./assets/collision.wav");
+  simulator->settings = (Settings *)malloc(sizeof(Settings));
+  *(simulator->settings) = (Settings){FALSE, FALSE, FALSE, FALSE};
+  simulator->mass_center = (MassCenter *)malloc(sizeof(MassCenter));
+  *(simulator->mass_center) = (MassCenter){0, 0, 0, 0, 0, 5};
+  simulator->box = (SDL_Rect *)malloc(sizeof(SDL_Rect));
+  *(simulator->box) = (SDL_Rect){50, 50, (BOX_FACTOR_X * SCREEN_WIDTH) - 50,
+                                 (BOX_FACTOR_Y * SCREEN_HEIGHT) - 50};
 
-  for (i = 0; i < 4; i++) {
-    Ball ball = generate_random_ball();
-    add_ball(ball);
-    mass_center->total_mass += ball.mass;
+  simulator->collision_sound = loadSound("./assets/collision.wav");
+
+  simulator->balls = NULL;
+  for (int i = 0; i < 4; i++) {
+    Ball *ball = generate_random_ball();
+    add_ball(simulator, ball);
   }
 
-  last_frame_time = 0;
-  state = INITIAL_SCREEN;
+  simulator->last_frame_time = 0;
+  simulator->state = INITIAL_SCREEN;
 }
 
+void setup_initial_screen(Simulator *simulator) {
+  simulator->text_rect = (SDL_Rect *)malloc(sizeof(SDL_Rect));
+  simulator->titulo = (Texto *)malloc(sizeof(Texto));
+  simulator->titulo->color = (SDL_Color){255, 255, 255, 255};
+  simulator->titulo->size = 48;
+  load_font(simulator, "./assets/stardew-valley.ttf", simulator->titulo->size);
+  create_text_texture(simulator, simulator->text,
+                      simulator->titulo->color);
+  simulator->border = (Border *)malloc(sizeof(Border));
+  *(simulator->border) = (Border){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+  simulator->triangle = (Triangle *)malloc(sizeof(Triangle));
+  simulator->start_button = (Circle_Button *)malloc(sizeof(Circle_Button));
+  simulator->start_button->x = (float)(SCREEN_WIDTH / 2.f);
+  simulator->start_button->y = (float)(SCREEN_HEIGHT / 2.f);
+  simulator->start_button->radius = 50;
+  simulator->start_button->r = 255;
+  simulator->start_button->g = 255;
+  simulator->start_button->b = 255;
+  simulator->start_button->a = 255;
 
+  Circle_Button *start_button = simulator->start_button;
+  Triangle *triangle = simulator->triangle;
 
-void setup_initial_screen(void) {
-  text_rect = (SDL_Rect *)malloc(sizeof(SDL_Rect));
-  titulo = (Texto *)malloc(sizeof(Texto));
-  titulo->color = (SDL_Color){255, 255, 255, 255};
-  titulo->size = 48;
-  load_font("./assets/stardew-valley.ttf", titulo->size);
-  create_text_texture(renderer, text, titulo->color);
-  border = (Border *)malloc(sizeof(Border));
-  *border = (Border){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-  triangle = (Triangle *)malloc(sizeof(Triangle));
-  start_button = (Circle_Button *)malloc(sizeof(Circle_Button));
-  start_button->x = (float)(SCREEN_WIDTH / 2.f);
-  start_button->y = (float)(SCREEN_HEIGHT / 2.f);
-  start_button->radius = 50;
-  start_button->r = 255;
-  start_button->g = 255;
-  start_button->b = 255;
-  start_button->a = 255;
   triangle->points[0] = (SDL_Point){
       (start_button->x - (TRIANGLE_FACTOR) * (start_button->radius / 2)),
       (start_button->y - (TRIANGLE_FACTOR)*start_button->radius)};
@@ -134,28 +128,54 @@ void setup_initial_screen(void) {
   triangle->a = 255;
 }
 
-void free_alocatedmemory(void) {
-  BallNode *current = balls;
+void free_alocatedmemory(Simulator *simulator) {
+  BallNode *current = simulator->balls;
   while (current != NULL) {
     BallNode *next = current->next;
+    free(current->ball);
     free(current);
     current = next;
   }
-  balls = NULL;
-  n_balls = 0;
+  simulator->balls = NULL;
+  simulator->n_balls = 0;
 
-  free(text_rect);
-  free(titulo);
-  free(border);
-  free(triangle);
-  free(start_button);
-  if (box != NULL) {
-    free(box);
+  if (simulator->text_rect != NULL) {
+    free(simulator->text_rect);
+    simulator->text_rect = NULL;
   }
-  if (show_render != NULL) {
-    free(show_render);
+
+  if (simulator->titulo != NULL) {
+    free(simulator->titulo);
+    simulator->titulo = NULL;
   }
-  if (mass_center != NULL) {
-    free(mass_center);
+
+  if (simulator->border != NULL) {
+    free(simulator->border);
+    simulator->border = NULL;
+  }
+
+  if (simulator->triangle != NULL) {
+    free(simulator->triangle);
+    simulator->triangle = NULL;
+  }
+
+  if (simulator->start_button != NULL) {
+    free(simulator->start_button);
+    simulator->start_button = NULL;
+  }
+
+  if (simulator->box != NULL) {
+    free(simulator->box);
+    simulator->box = NULL;
+  }
+
+  if (simulator->settings != NULL) {
+    free(simulator->settings);
+    simulator->settings = NULL;
+  }
+
+  if (simulator->mass_center != NULL) {
+    free(simulator->mass_center);
+    simulator->mass_center = NULL;
   }
 }

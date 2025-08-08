@@ -2,9 +2,11 @@
 #define PHYSICS_H
 #include "graphics.h"
 
-
 #define GRAVITY 9.8 
 #define MAX_COLLISIONS 1000
+
+typedef struct Simulator Simulator;
+
 typedef struct {
   float V;
   float angle;
@@ -29,11 +31,9 @@ typedef struct {
   int radius;
 } MassCenter;
 
-
-
-void update(void);
-void update_mass_center(void);
-void update_positions(float delta_time);
+void update(Simulator *simulator);
+void update_mass_center(Simulator *simulator);
+void update_positions(Simulator *simulator, float delta_time);
 void handle_wall_collision(Ball *b, Border *border_area, float restitution);
 
 #endif

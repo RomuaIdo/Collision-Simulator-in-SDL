@@ -11,8 +11,10 @@
 #define BOX_FACTOR_X 0.75
 #define BOX_FACTOR_Y 0.8 
 
+typedef struct Simulator Simulator;
+
 typedef struct {
-  SDL_Color color;
+  SDL_Color color;  
   int size;
 } Texto;
 
@@ -32,17 +34,14 @@ typedef struct {
   unsigned char r, g, b, a;
 } Triangle;
 
-
-
-void render(void);
+void render(Simulator *simulator);
 void fillTriangle(SDL_Renderer *renderer, SDL_Point* p);
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness);
 void draw_arrow(SDL_Renderer* renderer, int x1, int y1, int x2, int y2);
 int SDL_RenderFillCircle(SDL_Renderer * renderer, int x, int y, int radius);
 int SDL_RenderDrawCircle(SDL_Renderer * renderer, int x, int y, int radius);
-void load_font(const char* font_path, int font_size);
-void create_text_texture(SDL_Renderer* renderer, const char* text, SDL_Color color);
-void destroy_window(void);
-
+void load_font(Simulator *simulator, const char* font_path, int font_size);
+void create_text_texture(Simulator *simulator, const char* text, SDL_Color color);
+void destroy_window(Simulator *simulator);
 
 #endif
