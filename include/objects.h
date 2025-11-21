@@ -4,16 +4,19 @@
 
 typedef struct Simulator Simulator;
 
-typedef struct BallNode {
-  Ball* ball;
-  struct BallNode *next;
-} BallNode;
+typedef struct BallArray {
+  Ball* data;
+  int count;
+  int capacity;
+} BallArray;
 
-void shuffle_balls(Simulator* simulator);
-void add_ball(Simulator* simulator, Ball* ball);
-void add_random_ball(Simulator* simulator);
-void remove_last_ball(Simulator* simulator);
-Ball* generate_random_ball(void);
+void init_ball_array(BallArray* ball_array, int initial_capacity);
+void shuffle_balls(BallArray* ball_array, MassCenter* mass_center, Border* border);
+void add_ball(BallArray* ball_array, Ball ball);
+void add_random_ball(BallArray* ball_array, Border* border);
+void remove_last_ball(BallArray* ball_array, MassCenter* mass_center);
+Ball generate_random_ball(Border* border);
+void free_ball_array(BallArray* ball_array);
 
 typedef struct CollisionArray {
   CollisionData *data;

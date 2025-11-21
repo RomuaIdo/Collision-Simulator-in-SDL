@@ -23,7 +23,7 @@ void update_physics_step(Simulator *simulator, float delta_time) {
   clear_collision_array(&simulator->collision_array);
   
 
-  detect_collisions(simulator->balls, &simulator->collision_array);
+  detect_collisions(&simulator->ball_array, &simulator->collision_array);
 
   resolve_static_collisions(&simulator->collision_array);
 
@@ -32,39 +32,39 @@ void update_physics_step(Simulator *simulator, float delta_time) {
   integrate_motion(simulator, delta_time);
 
   if (simulator->settings->mass_center) {
-    update_mass_center(simulator);
+    update_mass_center(simulator->mass_center, &simulator->ball_array);
   }
 }
 
-void detect_collisions(BallNode *balls, CollisionArray* collision_array) {
-    BallNode *node_i = balls;
-    while (node_i) {
-        Ball *a = node_i->ball;
-        BallNode *node_j = node_i->next;
-
-        while (node_j) {
-            Ball *b = node_j->ball;
-            float dx = b->x - a->x;
-            float dy = b->y - a->y;
-            float dist_sq = dx*dx + dy*dy;
-            float min_dist = a->radius + b->radius;
-
-            if (dist_sq < min_dist * min_dist) {
-                float distance = sqrt(dist_sq);
-                if (distance > 0) {
-                    CollisionData collision;
-                    collision.a = a;
-                    collision.b = b;
-                    collision.nx = dx / distance;
-                    collision.ny = dy / distance;
-                    collision.overlap = min_dist - distance;
-                    add_collision(collision_array, collision);
-                }
-            }
-            node_j = node_j->next;
-        }
-        node_i = node_i->next;
+void detect_collisions(BallArray *ball_array, CollisionArray* collision_array) {
+  for (int i = 0; i < ball_array->count; i++) {
+    Ball *a = &ball_array->data[i];
+    for (int j = i + 1; j < ball_array->count; j++) {
+      Ball *b = &ball_array->data[j];
+      
+      float dx = b->x - a->x;
+      float dy = b->y - a->y;
+      float dist_sq = dx * dx + dy * dy;
+      float radius_sum = a->radius + b->radius;
+      
+      if (dist_sq < radius_sum * radius_sum) {
+        float dist = sqrtf(dist_sq);
+        float overlap = radius_sum - dist;
+        
+        float nx = dx / dist;
+        float ny = dy / dist;
+        
+        CollisionData collision;
+        collision.a = a;
+        collision.b = b;
+        collision.nx = nx;
+        collision.ny = ny;
+        collision.overlap = overlap;
+        
+        add_collision(collision_array, collision);
+      }
     }
+  }
 }
 
 void resolve_static_collisions(CollisionArray *collision_array) {
@@ -117,11 +117,10 @@ static void apply_impulse(Ball *a, Ball *b, float nx, float ny, float cr) {
     b->vy += impulse * ny / b->mass;
 }
 
-void integrate_motion(Simulator *simulator, float delta_time) {
-  BallNode *current = simulator->balls;
+void integrate_motion(Simulator* simulator, float delta_time) {
   
-  while (current) {
-    Ball *b = current->ball;
+  for (int i = 0; i < simulator->ball_array.count; i++) {
+    Ball *b = &simulator->ball_array.data[i];
 
     if (simulator->settings->gravity) {
       b->vy += GRAVITY; // Gravidade constante por frame ou multiplicar por delta_time se quiser simulação precisa SI
@@ -132,30 +131,27 @@ void integrate_motion(Simulator *simulator, float delta_time) {
 
     handle_wall_collision(b, simulator->border, simulator->CR);
 
-    current = current->next;
   }
 }
 
-void update_mass_center(Simulator *simulator) {
+void update_mass_center(MassCenter* mass_center, BallArray* ball_array) {
   float x = 0, y = 0, vx = 0, vy = 0, total_mass = 0;
 
-  BallNode *current = simulator->balls;
-  while (current) {
-    Ball *b = current->ball;
+  for (int i = 0; i < ball_array->count; i++) {
+    Ball *b = &ball_array->data[i];
     x += b->x * b->mass;
     y += b->y * b->mass;
     vx += b->vx * b->mass;
     vy += b->vy * b->mass;
     total_mass += b->mass;
-    current = current->next;
   }
 
   if (total_mass > 0) {
-    simulator->mass_center->vx = vx / total_mass;
-    simulator->mass_center->vy = vy / total_mass;
-    simulator->mass_center->x = x / total_mass;
-    simulator->mass_center->y = y / total_mass;
-    simulator->mass_center->total_mass = total_mass;
+    mass_center->vx = vx / total_mass;
+    mass_center->vy = vy / total_mass;
+    mass_center->x = x / total_mass;
+    mass_center->y = y / total_mass;
+    mass_center->total_mass = total_mass;
   }
 }
 

@@ -77,15 +77,15 @@ void setup(Simulator *simulator) {
   simulator->box = (SDL_Rect *)malloc(sizeof(SDL_Rect));
   *(simulator->box) = (SDL_Rect){50, 50, (BOX_FACTOR_X * SCREEN_WIDTH) - 50,
                                  (BOX_FACTOR_Y * SCREEN_HEIGHT) - 50};
+  simulator->border = (Border *)malloc(sizeof(Border));
+  *(simulator->border) = (Border){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-
+  init_ball_array(&simulator->ball_array, 16);
   init_collision_array(&simulator->collision_array, 128);
   simulator->collision_sound = loadSound("./assets/collision.wav");
 
-  simulator->balls = NULL;
   for (int i = 0; i < 4; i++) {
-    Ball *ball = generate_random_ball();
-    add_ball(simulator, ball);
+    add_random_ball(&simulator->ball_array, simulator->border);
   }
 
   simulator->last_frame_time = 0;
@@ -99,8 +99,6 @@ void setup_initial_screen(Simulator *simulator) {
   simulator->titulo->size = 48;
   load_font(simulator, "./assets/stardew-valley.ttf", simulator->titulo->size);
   create_text_texture(simulator, simulator->text, simulator->titulo->color);
-  simulator->border = (Border *)malloc(sizeof(Border));
-  *(simulator->border) = (Border){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
   simulator->triangle = (Triangle *)malloc(sizeof(Triangle));
   simulator->start_button = (Circle_Button *)malloc(sizeof(Circle_Button));
   simulator->start_button->x = (float)(SCREEN_WIDTH / 2.f);
@@ -132,16 +130,7 @@ void setup_initial_screen(Simulator *simulator) {
 void free_alocatedmemory(Simulator *simulator) {
 
   free_collision_array(&simulator->collision_array);
-
-  BallNode *current = simulator->balls;
-  while (current != NULL) {
-    BallNode *next = current->next;
-    free(current->ball);
-    free(current);
-    current = next;
-  }
-  simulator->balls = NULL;
-  simulator->n_balls = 0;
+  free_ball_array(&simulator->ball_array);
 
   if (simulator->text_rect != NULL) {
     free(simulator->text_rect);

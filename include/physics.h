@@ -5,7 +5,7 @@
 #define GRAVITY 9.8 
 
 typedef struct Simulator Simulator;
-typedef struct BallNode BallNode;
+typedef struct BallArray BallArray;
 typedef struct CollisionArray CollisionArray;
 
 typedef struct {
@@ -34,13 +34,13 @@ typedef struct {
 
 void update(Simulator *simulator);
 
-void update_physics_step(Simulator *simulator, float delta_time);
-void detect_collisions(BallNode *balls, CollisionArray *collision_array);
+void update_physics_step(Simulator* simulator, float delta_time);
+void detect_collisions(BallArray *ball_array, CollisionArray *collision_array);
 void resolve_static_collisions(CollisionArray *collision_array);
 void resolve_dynamic_collisions(Simulator *simulator, CollisionArray *collision_array);
 void integrate_motion(Simulator *simulator, float delta_time);
 
-void update_mass_center(Simulator *simulator);
+void update_mass_center(MassCenter *mass_center, BallArray* ball_array);
 void handle_wall_collision(Ball *b, Border *border_area, float restitution);
 
 #endif

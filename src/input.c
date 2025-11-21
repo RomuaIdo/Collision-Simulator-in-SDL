@@ -1,16 +1,12 @@
 #include "../include/input.h"
 #include "../include/graphics.h"
-#include "../include/objects.h"
 #include "../include/main.h"
+#include "../include/objects.h"
 
-
-
-
-void process_initial_screen_input(Simulator* simulator) {
+void process_initial_screen_input(Simulator *simulator) {
   SDL_Event event;
   Circle_Button *start_button = simulator->start_button;
   Border *border = simulator->border;
-
 
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
@@ -27,7 +23,7 @@ void process_initial_screen_input(Simulator* simulator) {
           simulator->state = RUNNING;
           *border = (Border){55, 55, (BOX_FACTOR_X * SCREEN_WIDTH) - 5,
                              (BOX_FACTOR_Y * SCREEN_HEIGHT) - 5};
-          shuffle_balls(simulator);
+          shuffle_balls(&simulator->ball_array, simulator->mass_center, border);
         }
       }
       break;
@@ -43,7 +39,7 @@ void process_initial_screen_input(Simulator* simulator) {
   }
 }
 
-void process_input(Simulator* simulator) {
+void process_input(Simulator *simulator) {
   SDL_Event event;
   Settings *settings = simulator->settings;
 
@@ -67,7 +63,8 @@ void process_input(Simulator* simulator) {
         }
         break;
       case SDLK_s:
-        shuffle_balls(simulator);
+        shuffle_balls(&simulator->ball_array, simulator->mass_center,
+                      simulator->border);
         break;
 
       case SDLK_g:
@@ -88,16 +85,15 @@ void process_input(Simulator* simulator) {
 
       case SDLK_PLUS:
       case SDLK_KP_PLUS:
-        add_random_ball(simulator);
+        add_random_ball(&simulator->ball_array, simulator->border);
         break;
 
       case SDLK_MINUS:
       case SDLK_KP_MINUS:
-        remove_last_ball(simulator);
+        remove_last_ball(&simulator->ball_array, simulator->mass_center);
         break;
       }
       break;
     }
   }
 }
-

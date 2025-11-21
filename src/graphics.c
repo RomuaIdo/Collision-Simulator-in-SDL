@@ -1,9 +1,7 @@
 #include "../include/graphics.h"
-#include "../include/objects.h"
 #include "../include/input.h"
 #include "../include/main.h"
-
-
+#include "../include/objects.h"
 
 void draw_box(SDL_Renderer *renderer, SDL_Rect *rect, int thickness) {
   SDL_Rect top = {rect->x, rect->y, rect->w, thickness};
@@ -162,8 +160,10 @@ void draw_arrow(SDL_Renderer *renderer, int x1, int y1, int x2, int y2) {
   SDL_RenderDrawLine(renderer, x2, y2, arrow_x2, arrow_y2);
 }
 
-void create_text_texture(Simulator *simulator, const char *text, SDL_Color color) {
-  SDL_Surface *text_surface = TTF_RenderText_Solid(simulator->font, text, color);
+void create_text_texture(Simulator *simulator, const char *text,
+                         SDL_Color color) {
+  SDL_Surface *text_surface =
+      TTF_RenderText_Solid(simulator->font, text, color);
   if (!text_surface) {
     fprintf(stderr, "Error creating text surface: %s\n", TTF_GetError());
     exit(EXIT_FAILURE);
@@ -172,8 +172,9 @@ void create_text_texture(Simulator *simulator, const char *text, SDL_Color color
   if (simulator->text_texture) {
     SDL_DestroyTexture(simulator->text_texture);
   }
-  
-  simulator->text_texture = SDL_CreateTextureFromSurface(simulator->renderer, text_surface);
+
+  simulator->text_texture =
+      SDL_CreateTextureFromSurface(simulator->renderer, text_surface);
   if (!simulator->text_texture) {
     fprintf(stderr, "Error creating text texture: %s\n", SDL_GetError());
     SDL_FreeSurface(text_surface);
@@ -192,52 +193,55 @@ void render(Simulator *simulator) {
   SDL_SetRenderDrawColor(simulator->renderer, 0, 0, 0, 255);
   SDL_RenderClear(simulator->renderer);
 
-  BallNode *current = simulator->balls;
-  while (current) {
-    Ball *ball = current->ball;
+  for (int i = 0; i < simulator->ball_array.count; i++) {
+    Ball *ball = &simulator->ball_array.data[i];
     SDL_SetRenderDrawColor(simulator->renderer, ball->color_r, ball->color_g,
                            ball->color_b, ball->color_a);
     SDL_RenderFillCircle(simulator->renderer, ball->x, ball->y, ball->radius);
-    current = current->next;
   }
 
   if (simulator->state == INITIAL_SCREEN) {
-    SDL_SetRenderDrawColor(simulator->renderer, simulator->start_button->r, simulator->start_button->g,
-                           simulator->start_button->b, simulator->start_button->a);
-    SDL_RenderFillCircle(simulator->renderer, simulator->start_button->x, simulator->start_button->y,
+    SDL_SetRenderDrawColor(simulator->renderer, simulator->start_button->r,
+                           simulator->start_button->g,
+                           simulator->start_button->b,
+                           simulator->start_button->a);
+    SDL_RenderFillCircle(simulator->renderer, simulator->start_button->x,
+                         simulator->start_button->y,
                          simulator->start_button->radius);
 
-    SDL_SetRenderDrawColor(simulator->renderer, simulator->triangle->r, simulator->triangle->g, simulator->triangle->b,
+    SDL_SetRenderDrawColor(simulator->renderer, simulator->triangle->r,
+                           simulator->triangle->g, simulator->triangle->b,
                            simulator->triangle->a);
     fillTriangle(simulator->renderer, simulator->triangle->points);
 
-    SDL_RenderCopy(simulator->renderer, simulator->text_texture, NULL, simulator->text_rect);
+    SDL_RenderCopy(simulator->renderer, simulator->text_texture, NULL,
+                   simulator->text_rect);
   } else {
     SDL_SetRenderDrawColor(simulator->renderer, 255, 255, 255, 255);
     draw_box(simulator->renderer, simulator->box, 5);
-
-    current = simulator->balls;
-    while (current) {
-      Ball *ball = current->ball;
-      if (simulator->settings->vectors) {
-        SDL_SetRenderDrawColor(simulator->renderer, ball->color_r, ball->color_g,
-                               ball->color_b, ball->color_a);
-        draw_arrow(simulator->renderer, ball->x, ball->y, ball->x + (ball->vx / 2),
-                   ball->y + (ball->vy / 2));
+    if (simulator->settings->vectors) {
+      for (int i = 0; i < simulator->ball_array.count; i++) {
+        Ball *ball = &simulator->ball_array.data[i];
+        SDL_SetRenderDrawColor(simulator->renderer, ball->color_r,
+                               ball->color_g, ball->color_b, ball->color_a);
+        draw_arrow(simulator->renderer, ball->x, ball->y,
+                   ball->x + (ball->vx / 2), ball->y + (ball->vy / 2));
       }
-      current = current->next;
     }
 
     if (simulator->settings->mass_center) {
       SDL_SetRenderDrawColor(simulator->renderer, 255, 0, 0, 255);
-      SDL_RenderFillCircle(simulator->renderer, simulator->mass_center->x, simulator->mass_center->y,
+      SDL_RenderFillCircle(simulator->renderer, simulator->mass_center->x,
+                           simulator->mass_center->y,
                            simulator->mass_center->radius);
 
       if (simulator->settings->vectors) {
         SDL_SetRenderDrawColor(simulator->renderer, 255, 0, 0, 255);
-        draw_arrow(simulator->renderer, simulator->mass_center->x, simulator->mass_center->y,
+        draw_arrow(simulator->renderer, simulator->mass_center->x,
+                   simulator->mass_center->y,
                    simulator->mass_center->x + (simulator->mass_center->vx / 2),
-                   simulator->mass_center->y + (simulator->mass_center->vy / 2));
+                   simulator->mass_center->y +
+                       (simulator->mass_center->vy / 2));
       }
     }
   }
@@ -249,7 +253,7 @@ void load_font(Simulator *simulator, const char *font_path, int font_size) {
   if (simulator->font) {
     TTF_CloseFont(simulator->font);
   }
-  
+
   simulator->font = TTF_OpenFont(font_path, font_size);
   if (!simulator->font) {
     fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
@@ -259,32 +263,32 @@ void load_font(Simulator *simulator, const char *font_path, int font_size) {
 
 void destroy_window(Simulator *simulator) {
   free_alocatedmemory(simulator);
-  
+
   if (simulator->renderer) {
     SDL_DestroyRenderer(simulator->renderer);
     simulator->renderer = NULL;
   }
-  
+
   if (simulator->window) {
     SDL_DestroyWindow(simulator->window);
     simulator->window = NULL;
   }
-  
+
   if (simulator->collision_sound) {
     Mix_FreeChunk(simulator->collision_sound);
     simulator->collision_sound = NULL;
   }
-  
+
   if (simulator->font) {
     TTF_CloseFont(simulator->font);
     simulator->font = NULL;
   }
-  
+
   if (simulator->text_texture) {
     SDL_DestroyTexture(simulator->text_texture);
     simulator->text_texture = NULL;
   }
-  
+
   TTF_Quit();
   Mix_CloseAudio();
   SDL_Quit();

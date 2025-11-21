@@ -26,8 +26,7 @@ typedef struct Simulator {
   Circle_Button* start_button;
   Triangle* triangle;
   SDL_Rect* text_rect;
-  BallNode *balls;
-  int n_balls;
+  BallArray ball_array;
   char text[20];
   TTF_Font *font;
   SDL_Texture *text_texture;
