@@ -3,9 +3,10 @@
 #include "graphics.h"
 
 #define GRAVITY 9.8 
-#define MAX_COLLISIONS 1000
 
 typedef struct Simulator Simulator;
+typedef struct BallNode BallNode;
+typedef struct CollisionArray CollisionArray;
 
 typedef struct {
   float V;
@@ -32,8 +33,14 @@ typedef struct {
 } MassCenter;
 
 void update(Simulator *simulator);
+
+void update_physics_step(Simulator *simulator, float delta_time);
+void detect_collisions(BallNode *balls, CollisionArray *collision_array);
+void resolve_static_collisions(CollisionArray *collision_array);
+void resolve_dynamic_collisions(Simulator *simulator, CollisionArray *collision_array);
+void integrate_motion(Simulator *simulator, float delta_time);
+
 void update_mass_center(Simulator *simulator);
-void update_positions(Simulator *simulator, float delta_time);
 void handle_wall_collision(Ball *b, Border *border_area, float restitution);
 
 #endif

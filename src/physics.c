@@ -1,11 +1,9 @@
 #include "../include/physics.h"
-#include "../include/utils.h"
 #include "../include/objects.h"
 #include "../include/input.h"
 #include "../include/main.h"
 
-int collision_wallx = FALSE;
-int collision_wally = FALSE;
+static void apply_impulse(Ball *a, Ball *b, float nx, float ny, float cr);
 
 void update(Simulator *simulator) {
   float delta_time = (SDL_GetTicks() - simulator->last_frame_time) / 1000.0f;
@@ -17,68 +15,78 @@ void update(Simulator *simulator) {
   }
 
   if (simulator->state != PAUSED) {
-    update_positions(simulator, delta_time);
+    update_physics_step(simulator, delta_time);
   }
 }
 
-void update_positions(Simulator *simulator, float delta_time) {
-  CollisionData collisions[MAX_COLLISIONS];
-  int collision_count = 0;
+void update_physics_step(Simulator *simulator, float delta_time) {
+  clear_collision_array(&simulator->collision_array);
+  
 
-  BallNode *node_i = simulator->balls;
-  while (node_i) {
-    Ball *a = node_i->ball;
-    BallNode *node_j = node_i->next;
+  detect_collisions(simulator->balls, &simulator->collision_array);
 
-    while (node_j) {
-      Ball *b = node_j->ball;
-      float dx = b->x - a->x;
-      float dy = b->y - a->y;
-      float distance = sqrt(dx * dx + dy * dy);
-      float min_distance = a->radius + b->radius;
+  resolve_static_collisions(&simulator->collision_array);
 
-      if (distance < min_distance) {
-        if (collision_count < MAX_COLLISIONS) {
-          collisions[collision_count].a = a;
-          collisions[collision_count].b = b;
-          collisions[collision_count].nx = dx / distance;
-          collisions[collision_count].ny = dy / distance;
-          collisions[collision_count].overlap = min_distance - distance;
-          collision_count++;
+  resolve_dynamic_collisions(simulator, &simulator->collision_array);
+
+  integrate_motion(simulator, delta_time);
+
+  if (simulator->settings->mass_center) {
+    update_mass_center(simulator);
+  }
+}
+
+void detect_collisions(BallNode *balls, CollisionArray* collision_array) {
+    BallNode *node_i = balls;
+    while (node_i) {
+        Ball *a = node_i->ball;
+        BallNode *node_j = node_i->next;
+
+        while (node_j) {
+            Ball *b = node_j->ball;
+            float dx = b->x - a->x;
+            float dy = b->y - a->y;
+            float dist_sq = dx*dx + dy*dy;
+            float min_dist = a->radius + b->radius;
+
+            if (dist_sq < min_dist * min_dist) {
+                float distance = sqrt(dist_sq);
+                if (distance > 0) {
+                    CollisionData collision;
+                    collision.a = a;
+                    collision.b = b;
+                    collision.nx = dx / distance;
+                    collision.ny = dy / distance;
+                    collision.overlap = min_dist - distance;
+                    add_collision(collision_array, collision);
+                }
+            }
+            node_j = node_j->next;
         }
-      }
-      node_j = node_j->next;
+        node_i = node_i->next;
     }
-    node_i = node_i->next;
+}
+
+void resolve_static_collisions(CollisionArray *collision_array) {
+  for (int i = 0; i < collision_array->count; i++) {
+    Ball *a = collision_array->data[i].a;
+    Ball *b = collision_array->data[i].b;
+    
+    const float displace = collision_array->data[i].overlap * 0.5f;
+    
+    a->x -= collision_array->data[i].nx * displace;
+    a->y -= collision_array->data[i].ny * displace;
+    b->x += collision_array->data[i].nx * displace;
+    b->y += collision_array->data[i].ny * displace;
   }
+}
 
-  for (int i = 0; i < collision_count; i++) {
-    Ball *a = collisions[i].a;
-    Ball *b = collisions[i].b;
-    const float nx = collisions[i].nx;
-    const float ny = collisions[i].ny;
-    const float overlap = collisions[i].overlap;
-
-    const float displace = overlap * 0.5f;
-    a->x -= nx * displace;
-    a->y -= ny * displace;
-    b->x += nx * displace;
-    b->y += ny * displace;
-  }
-
-  for (int i = 0; i < collision_count; i++) {
-    Ball *a = collisions[i].a;
-    Ball *b = collisions[i].b;
-    const float nx = collisions[i].nx;
-    const float ny = collisions[i].ny;
-
-    float vrel = (b->vx - a->vx) * nx + (b->vy - a->vy) * ny;
-    float impulse = -(1 + simulator->CR) * vrel / (1 / a->mass + 1 / b->mass);
-
-    a->vx -= impulse * nx / a->mass;
-    a->vy -= impulse * ny / a->mass;
-    b->vx += impulse * nx / b->mass;
-    b->vy += impulse * ny / b->mass;
+void resolve_dynamic_collisions(Simulator *simulator, CollisionArray *collision_array) {
+  for (int i = 0; i < collision_array->count; i++) {
+    Ball *a = collision_array->data[i].a;
+    Ball *b = collision_array->data[i].b;
+    
+    apply_impulse(a, b, collision_array->data[i].nx, collision_array->data[i].ny, simulator->CR);
 
     a->V = sqrt(a->vx * a->vx + a->vy * a->vy);
     a->angle = atan2(a->vy, a->vx);
@@ -86,29 +94,45 @@ void update_positions(Simulator *simulator, float delta_time) {
     b->angle = atan2(b->vy, b->vx);
 
     if (simulator->state == RUNNING && !simulator->settings->mute) {
-      Mix_VolumeChunk(simulator->collision_sound, (int)fabs(impulse));
+      float vrel_sq = pow(b->vx - a->vx, 2) + pow(b->vy - a->vy, 2);
+      int volume = (int)(sqrt(vrel_sq) / 5); 
+      if (volume > 128) volume = 128;
+      
+      Mix_VolumeChunk(simulator->collision_sound, volume);
       Mix_PlayChannel(-1, simulator->collision_sound, 0);
     }
   }
+}
 
+static void apply_impulse(Ball *a, Ball *b, float nx, float ny, float cr) {
+    float vrel = (b->vx - a->vx) * nx + (b->vy - a->vy) * ny;
+
+    if (vrel > 0) return;
+
+    float impulse = -(1 + cr) * vrel / (1 / a->mass + 1 / b->mass);
+
+    a->vx -= impulse * nx / a->mass;
+    a->vy -= impulse * ny / a->mass;
+    b->vx += impulse * nx / b->mass;
+    b->vy += impulse * ny / b->mass;
+}
+
+void integrate_motion(Simulator *simulator, float delta_time) {
   BallNode *current = simulator->balls;
+  
   while (current) {
     Ball *b = current->ball;
+
+    if (simulator->settings->gravity) {
+      b->vy += GRAVITY; // Gravidade constante por frame ou multiplicar por delta_time se quiser simulação precisa SI
+    }
 
     b->x += b->vx * delta_time;
     b->y += b->vy * delta_time;
 
     handle_wall_collision(b, simulator->border, simulator->CR);
 
-    if (simulator->settings->gravity) {
-      b->vy += GRAVITY;
-    }
-
     current = current->next;
-  }
-
-  if (simulator->settings->mass_center) {
-    update_mass_center(simulator);
   }
 }
 
@@ -136,19 +160,25 @@ void update_mass_center(Simulator *simulator) {
 }
 
 void handle_wall_collision(Ball *b, Border *border_area, float restitution) {
+  int hit = 0;
+  
   if (b->x - b->radius < border_area->x1) {
     b->x = border_area->x1 + b->radius;
     b->vx = fabs(b->vx) * restitution;
+    hit = 1;
   } else if (b->x + b->radius > border_area->x2) {
     b->x = border_area->x2 - b->radius;
     b->vx = -fabs(b->vx) * restitution;
+    hit = 1;
   }
 
   if (b->y - b->radius < border_area->y1) {
     b->y = border_area->y1 + b->radius;
     b->vy = fabs(b->vy) * restitution;
+    hit = 1;
   } else if (b->y + b->radius > border_area->y2) {
     b->y = border_area->y2 - b->radius;
     b->vy = -fabs(b->vy) * restitution;
+    hit = 1;
   }
 }

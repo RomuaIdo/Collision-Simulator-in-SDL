@@ -16,6 +16,7 @@ typedef struct Simulator {
   SDL_Renderer *renderer;
   Settings* settings;
   MassCenter* mass_center;
+  CollisionArray collision_array;
   float CR;
   Mix_Chunk *collision_sound;
   int last_frame_time;

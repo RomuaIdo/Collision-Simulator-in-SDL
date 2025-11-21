@@ -108,3 +108,40 @@ void shuffle_balls(Simulator* simulator) {
     update_mass_center(simulator);
   }
 }
+
+
+void init_collision_array(CollisionArray *array, int initial_capacity) {
+  array->data = (CollisionData *)malloc(initial_capacity * sizeof(CollisionData));
+  if (!array->data) {
+    fprintf(stderr, "Error allocating memory for collision array.\n");
+    exit(EXIT_FAILURE);
+  }
+  array->count = 0;
+  array->capacity = initial_capacity;
+}
+
+void add_collision(CollisionArray *array, CollisionData collision) {
+  if (array->count >= array->capacity) {
+    array->capacity *= 2;
+    array->data = (CollisionData *)realloc(array->data, array->capacity * sizeof(CollisionData));
+    if (!array->data) {
+      fprintf(stderr, "Error reallocating memory for collision array.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+  array->data[array->count++] = collision;
+}
+
+void clear_collision_array(CollisionArray *array) {
+  array->count = 0;
+}
+
+void free_collision_array(CollisionArray *array) {
+  free(array->data);
+  array->data = NULL;
+  array->count = 0;
+  array->capacity = 0;
+}
+
+
+
