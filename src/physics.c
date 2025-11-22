@@ -15,24 +15,25 @@ void update(Simulator *simulator) {
   }
 
   if (simulator->state != PAUSED) {
-    update_physics_step(simulator, delta_time);
+    update_physics_step(&simulator->world, simulator->settings, &simulator->resources, simulator->state, delta_time);
   }
 }
 
-void update_physics_step(Simulator *simulator, float delta_time) {
-  clear_collision_array(&simulator->collision_array);
+
+void update_physics_step(PhysicsWorld* world, Settings* settings, Resources* resources, State state, float delta_time){
+  clear_collision_array(&world->collision_array);
   
 
-  detect_collisions(&simulator->ball_array, &simulator->collision_array);
+  detect_collisions(&world->ball_array, &world->collision_array);
 
-  resolve_static_collisions(&simulator->collision_array);
+  resolve_static_collisions(&world->collision_array);
 
-  resolve_dynamic_collisions(simulator, &simulator->collision_array);
+  resolve_dynamic_collisions(world, settings, resources, state);
 
-  integrate_motion(simulator, delta_time);
+  integrate_motion(world, settings, delta_time);
 
-  if (simulator->settings->mass_center) {
-    update_mass_center(simulator->mass_center, &simulator->ball_array);
+  if (settings->mass_center) {
+    update_mass_center(world->mass_center, &world->ball_array);
   }
 }
 
@@ -81,25 +82,26 @@ void resolve_static_collisions(CollisionArray *collision_array) {
   }
 }
 
-void resolve_dynamic_collisions(Simulator *simulator, CollisionArray *collision_array) {
+void resolve_dynamic_collisions(PhysicsWorld* world, Settings* settings, Resources* resources, State state) {
+  CollisionArray *collision_array = &world->collision_array;
   for (int i = 0; i < collision_array->count; i++) {
     Ball *a = collision_array->data[i].a;
     Ball *b = collision_array->data[i].b;
     
-    apply_impulse(a, b, collision_array->data[i].nx, collision_array->data[i].ny, simulator->CR);
+    apply_impulse(a, b, collision_array->data[i].nx, collision_array->data[i].ny, world->CR);
 
     a->V = sqrt(a->vx * a->vx + a->vy * a->vy);
     a->angle = atan2(a->vy, a->vx);
     b->V = sqrt(b->vx * b->vx + b->vy * b->vy);
     b->angle = atan2(b->vy, b->vx);
 
-    if (simulator->state == RUNNING && !simulator->settings->mute) {
+    if (state == RUNNING && !settings->mute) {
       float vrel_sq = pow(b->vx - a->vx, 2) + pow(b->vy - a->vy, 2);
       int volume = (int)(sqrt(vrel_sq) / 5); 
       if (volume > 128) volume = 128;
       
-      Mix_VolumeChunk(simulator->collision_sound, volume);
-      Mix_PlayChannel(-1, simulator->collision_sound, 0);
+      Mix_VolumeChunk(resources->collision_sound, volume);
+      Mix_PlayChannel(-1, resources->collision_sound, 0);
     }
   }
 }
@@ -117,19 +119,19 @@ static void apply_impulse(Ball *a, Ball *b, float nx, float ny, float cr) {
     b->vy += impulse * ny / b->mass;
 }
 
-void integrate_motion(Simulator* simulator, float delta_time) {
+void integrate_motion(PhysicsWorld* world, Settings* settings, float delta_time) {
   
-  for (int i = 0; i < simulator->ball_array.count; i++) {
-    Ball *b = &simulator->ball_array.data[i];
+  for (int i = 0; i < world->ball_array.count; i++) {
+    Ball *b = &world->ball_array.data[i];
 
-    if (simulator->settings->gravity) {
+    if (settings->gravity) {
       b->vy += GRAVITY; // Gravidade constante por frame ou multiplicar por delta_time se quiser simulação precisa SI
     }
 
     b->x += b->vx * delta_time;
     b->y += b->vy * delta_time;
 
-    handle_wall_collision(b, simulator->border, simulator->CR);
+    handle_wall_collision(b, world->border, world->CR);
 
   }
 }

@@ -1,4 +1,5 @@
 #include "../include/objects.h"
+#include "../include/physics.h"
 
 void init_ball_array(BallArray *ball_array, int initial_capacity) {
   ball_array->data = (Ball *)malloc(initial_capacity * sizeof(Ball));

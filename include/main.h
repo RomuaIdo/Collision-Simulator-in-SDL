@@ -7,29 +7,28 @@
 #include "state.h"
 #include "utils.h"
 
-typedef struct BallNode BallNode;
+typedef struct MainMenu {
+  Text* titulo;
+  Circle_Button* start_button;
+  Triangle* triangle;
+} MainMenu;
+
+typedef struct Resources {
+  Mix_Chunk *collision_sound;
+  TTF_Font *font;
+} Resources;
+
 
 typedef struct Simulator {
   State state;
   int running;
-  SDL_Window *window;
-  SDL_Renderer *renderer;
   Settings* settings;
-  MassCenter* mass_center;
-  CollisionArray collision_array;
-  float CR;
-  Mix_Chunk *collision_sound;
   int last_frame_time;
-  Border* border;
-  SDL_Rect* box;
-  Texto* titulo;
-  Circle_Button* start_button;
-  Triangle* triangle;
-  SDL_Rect* text_rect;
-  BallArray ball_array;
-  char text[20];
-  TTF_Font *font;
-  SDL_Texture *text_texture;
+
+  WindowConfig window_config;
+  PhysicsWorld world;
+  MainMenu menu;
+  Resources resources;
 } Simulator;
 
 int initialize(Simulator *simulator);

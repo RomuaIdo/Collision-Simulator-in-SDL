@@ -1,8 +1,12 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
-#include "physics.h"
 
 typedef struct Simulator Simulator;
+typedef struct Ball Ball;
+typedef struct MassCenter MassCenter;
+typedef struct CollisionData CollisionData;
+typedef struct Border Border;
+
 
 typedef struct BallArray {
   Ball* data;

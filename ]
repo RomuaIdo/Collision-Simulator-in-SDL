@@ -46,11 +46,12 @@ typedef struct MassCenter {
 
 void update(Simulator *simulator);
 
-void update_physics_step(PhysicsWorld* world, Settings* settings, Resources* resources, State state, float delta_time);
+void update_physics_step(PhysicsWorld* world, float delta_time);
 void detect_collisions(BallArray *ball_array, CollisionArray *collision_array);
 void resolve_static_collisions(CollisionArray *collision_array);
 void resolve_dynamic_collisions(PhysicsWorld* world, Settings* settings, Resources* resources, State state);
-void integrate_motion(PhysicsWorld* world, Settings* settings, float delta_time);
+void integrate_motion(Simulator *simulator, float delta_time);
+
 void update_mass_center(MassCenter *mass_center, BallArray* ball_array);
 void handle_wall_collision(Ball *b, Border *border_area, float restitution);
 

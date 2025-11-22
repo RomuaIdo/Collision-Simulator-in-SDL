@@ -3,15 +3,15 @@
 #include "../include/main.h"
 #include "../include/objects.h"
 
-void process_initial_screen_input(Simulator *simulator) {
+void process_initial_screen_input(MainMenu* menu, PhysicsWorld* world, State* state, int* running) {
   SDL_Event event;
-  Circle_Button *start_button = simulator->start_button;
-  Border *border = simulator->border;
+  Circle_Button *start_button = menu->start_button;
+  Border *border = world->border;
 
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
     case SDL_QUIT:
-      simulator->running = FALSE;
+      (*running) = FALSE;
       break;
 
     case SDL_MOUSEBUTTONDOWN:
@@ -20,10 +20,10 @@ void process_initial_screen_input(Simulator *simulator) {
         SDL_GetMouseState(&x, &y);
         if (sqrt(pow(x - start_button->x, 2) + pow(y - start_button->y, 2)) <=
             start_button->radius) {
-          simulator->state = RUNNING;
+          (*state) = RUNNING;
           *border = (Border){55, 55, (BOX_FACTOR_X * SCREEN_WIDTH) - 5,
                              (BOX_FACTOR_Y * SCREEN_HEIGHT) - 5};
-          shuffle_balls(&simulator->ball_array, simulator->mass_center, border);
+          shuffle_balls(&world->ball_array, world->mass_center, border);
         }
       }
       break;
@@ -31,7 +31,7 @@ void process_initial_screen_input(Simulator *simulator) {
     case SDL_KEYDOWN:
       switch (event.key.keysym.sym) {
       case SDLK_ESCAPE:
-        simulator->running = FALSE;
+        (*running) = FALSE;
         break;
       }
       break;
@@ -39,32 +39,31 @@ void process_initial_screen_input(Simulator *simulator) {
   }
 }
 
-void process_input(Simulator *simulator) {
+void process_input(Settings* settings, PhysicsWorld* world, State* state, int* running) {
   SDL_Event event;
-  Settings *settings = simulator->settings;
 
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
     case SDL_QUIT:
-      simulator->running = FALSE;
+      (*running) = FALSE;
       break;
 
     case SDL_KEYDOWN:
       switch (event.key.keysym.sym) {
       case SDLK_ESCAPE:
-        simulator->running = FALSE;
+        (*running) = FALSE;
         break;
 
       case SDLK_p:
-        if (simulator->state == RUNNING) {
-          simulator->state = PAUSED;
-        } else if (simulator->state == PAUSED) {
-          simulator->state = RUNNING;
+        if ((*state) == RUNNING) {
+          (*state) = PAUSED;
+        } else if ((*state) == PAUSED) {
+          (*state) = RUNNING;
         }
         break;
       case SDLK_s:
-        shuffle_balls(&simulator->ball_array, simulator->mass_center,
-                      simulator->border);
+        shuffle_balls(&world->ball_array, world->mass_center,
+                      world->border);
         break;
 
       case SDLK_g:
@@ -85,12 +84,12 @@ void process_input(Simulator *simulator) {
 
       case SDLK_PLUS:
       case SDLK_KP_PLUS:
-        add_random_ball(&simulator->ball_array, simulator->border);
+        add_random_ball(&world->ball_array, world->border);
         break;
 
       case SDLK_MINUS:
       case SDLK_KP_MINUS:
-        remove_last_ball(&simulator->ball_array, simulator->mass_center);
+        remove_last_ball(&world->ball_array, world->mass_center);
         break;
       }
       break;
