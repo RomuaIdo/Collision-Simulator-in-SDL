@@ -6,7 +6,7 @@
 
 
 <div align="center">
-  [Simulation Preview](assets/Screenshot.png)
+  ![Simulation Preview](assets/Screenshot.png)
 </div>
 
 ---
