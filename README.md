@@ -1,85 +1,149 @@
-# Collision-Simulator-in-SDL
-Um simulador de colisoes simples em C utilizando a biblioteca SDL para um projeto de física
+# Collision Simulator in SDL
 
-Como executar/compilar este projeto em várias plataformas:
+[Português](#português) | [English](#english)
 
-Windows 64 bits:
-Execute o main.exe na pasta build/windows-64bit
-Compilar: digite make compile_win64bit na pasta de trabalho
+## Screenshots
 
-Windows 32 bits:
-Execute o main.exe na pasta build/windows-32bit
-Compilar: digite make compile_win32bit na pasta de trabalho
+<!-- Coloque suas imagens aqui / Place your screenshots here -->
+<!-- Example: ![Simulation Preview](assets/screenshot.png) -->
 
-Linux
-Distros principais:
+<div align="center">
+  <!-- Remove this line and insert your image link below -->
+  [Screenshot](assets/Screenshot.png)
+</div>
 
-Instale as dependências:
-SDL2
-SDL2_mixer
-SDL_ttf
+---
 
-Ubuntu/Debian:
-sudo apt update
-sudo apt install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev
+<a id="português"></a>
+## Português
 
-Fedora:
-sudo dnf check-update
-sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel
+Este é um simulador de física 2D desenvolvido em C utilizando a biblioteca SDL2. O projeto simula colisões elásticas entre bolas, com suporte a gravidade, centro de massa interativo e efeitos sonoros.
 
-Arch Linux:
-sudo pacman -Syu
-sudo pacman -S sdl2 sdl2_mixer sdl2_ttf
+### Funcionalidades
 
-OpenSUSE:
-sudo zypper refresh
-sudo zypper install libSDL2-devel libSDL2_mixer-devel libSDL2_ttf-devel
+*   **Simulação de Física:** Colisões elásticas entre bolas e com as bordas.
+*   **Gravidade:** Alterne a gravidade para ver como ela afeta os objetos.
+*   **Centro de Massa:** Ative um centro de massa gravitacional que atrai as bolas.
+*   **Controle de Quantidade:** Adicione ou remova bolas dinamicamente durante a simulação.
+*   **Efeitos Visuais:** Visualização de vetores de movimento (opcional).
+*   **Áudio:** Efeitos sonoros de colisão.
+*   **Menu Inicial:** Interface gráfica simples para iniciar a simulação.
 
-Gentoo:
-sudo emerge --sync
-sudo emerge media-libs/libsdl2 media-libs/sdl2-mixer media-libs/sdl2-ttf
+### 🛠️ Pré-requisitos
 
-Depois disso execute o arquivo main na pasta build/linux
+Para compilar e executar este projeto, você precisará das bibliotecas de desenvolvimento do SDL2 instaladas no seu sistema.
 
+#### Linux (Debian/Ubuntu)
 
-A simples collision simulator in SDL for a physics project
+```bash
+sudo apt-get update
+sudo apt-get install build-essential libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+```
 
+### Como Compilar e Executar
 
-How run/compile this project in multiple plataforms:
+O projeto utiliza um `Makefile` para facilitar a compilação.
 
-Windows 64 bit:
-Execute the main.exe in the build/windows-64bit folder
-Compile: type make compile_win64bit in the workspace folder
+#### Compilar
+Para apenas compilar o projeto:
+```bash
+make
+```
 
-Windows 32 bit:
-Execute the main.exe in the build/windows-32bit folder
-Compile: type make compile_win32bit in the workspace folder
+#### Compilar e Executar
+Para compilar e iniciar o simulador imediatamente:
+```bash
+make run
+```
 
-Linux
-Main distros:
-Install the dependencies:
-SDL2
-SDL2_mixer
-SDL_ttf
+#### Limpar Arquivos Temporários
+Para remover os arquivos objeto e o binário compilado:
+```bash
+make clean
+```
 
-Ubuntu/Debian:
-sudo apt update
-sudo apt install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev
+### 🎮 Controles
 
-Fedora:
-sudo dnf check-update
-sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel
+Durante a execução do simulador, utilize as seguintes teclas para interagir:
 
-Arch Linux:
-sudo pacman -Syu
-sudo pacman -S sdl2 sdl2_mixer sdl2_ttf
+| Tecla | Ação |
+| :--- | :--- |
+| `ESC` | Sair do simulador |
+| `P` | Pausar / Despausar a simulação |
+| `S` | Embaralhar (Shuffle) as bolas |
+| `G` | Ativar / Desativar Gravidade |
+| `C` | Ativar / Desativar Centro de Massa |
+| `V` | Mostrar / Ocultar Vetores (Debug) |
+| `M` | Mutar / Desmutar Sons |
+| `+` (ou Numpad `+`) | Adicionar uma nova bola aleatória |
+| `-` (ou Numpad `-`) | Remover a última bola |
 
-OpenSUSE:
-sudo zypper refresh
-sudo zypper install libSDL2-devel libSDL2_mixer-devel libSDL2_ttf-devel
+---
 
-Gentoo:
-sudo emerge --sync
-sudo emerge media-libs/libsdl2 media-libs/sdl2-mixer media-libs/sdl2-ttf
+<a id="english"></a>
+## English
 
-After that execute the main in the build/linux folder
+This is a 2D physics simulator developed in C using the SDL2 library. It simulates elastic collisions between balls, featuring gravity support, an interactive center of mass, and sound effects.
+
+### Features
+
+*   **Physics Simulation:** Elastic collisions between balls and boundaries.
+*   **Gravity:** Toggle gravity to observe its effect on objects.
+*   **Center of Mass:** Activate a gravitational center of mass that attracts the balls.
+*   **Quantity Control:** Dynamically add or remove balls during the simulation.
+*   **Visual Effects:** Motion vector visualization (debug mode).
+*   **Audio:** Collision sound effects.
+*   **Start Menu:** Simple graphical interface to start the simulation.
+
+### Prerequisites
+
+To build and run this project, you will need the SDL2 development libraries installed on your system.
+
+#### Linux (Debian/Ubuntu)
+
+```bash
+sudo apt-get update
+sudo apt-get install build-essential libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+```
+
+### 🚀 How to Build and Run
+
+The project uses a `Makefile` to streamline the build process.
+
+#### Build
+To only build the project:
+```bash
+make
+```
+
+#### Build and Run
+To build and immediately start the simulator:
+```bash
+make run
+```
+
+#### Clean Temporary Files
+To remove object files and the compiled binary:
+```bash
+make clean
+```
+
+### Controls
+
+Use the following keys to interact with the simulator while running:
+
+| Key | Action |
+| :--- | :--- |
+| `ESC` | Exit the simulator |
+| `P` | Pause / Unpause simulation |
+| `S` | Shuffle balls |
+| `G` | Toggle Gravity |
+| `C` | Toggle Center of Mass |
+| `V` | Show / Hide Vectors (Debug) |
+| `M` | Mute / Unmute Sounds |
+| `+` (or Numpad `+`) | Add a random ball |
+| `-` (or Numpad `-`) | Remove the last ball |
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
