@@ -5,9 +5,7 @@
 ## Screenshots
 
 
-<div align="center">
-  ![Simulation Preview](assets/Screenshot.png)
-</div>
+![Simulation Preview](assets/Screenshot.png)
 
 ---
 
