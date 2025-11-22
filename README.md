@@ -4,12 +4,9 @@
 
 ## Screenshots
 
-<!-- Coloque suas imagens aqui / Place your screenshots here -->
-<!-- Example: ![Simulation Preview](assets/screenshot.png) -->
 
 <div align="center">
-  <!-- Remove this line and insert your image link below -->
-  [Screenshot](assets/Screenshot.png)
+  [Simulation Preview](assets/Screenshot.png)
 </div>
 
 ---
@@ -29,7 +26,7 @@ Este é um simulador de física 2D desenvolvido em C utilizando a biblioteca SDL
 *   **Áudio:** Efeitos sonoros de colisão.
 *   **Menu Inicial:** Interface gráfica simples para iniciar a simulação.
 
-### 🛠️ Pré-requisitos
+### Pré-requisitos
 
 Para compilar e executar este projeto, você precisará das bibliotecas de desenvolvimento do SDL2 instaladas no seu sistema.
 
@@ -62,7 +59,7 @@ Para remover os arquivos objeto e o binário compilado:
 make clean
 ```
 
-### 🎮 Controles
+### Controles
 
 Durante a execução do simulador, utilize as seguintes teclas para interagir:
 
@@ -106,7 +103,7 @@ sudo apt-get update
 sudo apt-get install build-essential libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
 ```
 
-### 🚀 How to Build and Run
+### How to Build and Run
 
 The project uses a `Makefile` to streamline the build process.
 
